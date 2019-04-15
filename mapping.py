@@ -4,7 +4,12 @@ Date: April 13th, 2019
 '''
 
 import math
+import numpy as np
 class Mapping:
+
+    # gets coordinate value
+    def get_coords(self, x, y):
+        return self.grid[-y + self.origin_y][self.origin_x + x]
 
     def extend_grid(self, side, extend_by):
 
@@ -75,12 +80,12 @@ class Mapping:
     def __init__(self):
         pass
 
-# map_obj = Mapping()
-# map_obj.create_map(3)
+map_obj = Mapping()
+map_obj.create_map(3)
 # map_obj.set_element(-2, -2, 'r')
 # map_obj.set_element(2, 2, 'r')
 # map_obj.set_element(-2, 2, 'r')
 # map_obj.set_element(2, -2, 'r')
-# #map_obj.set_element(20, 5, 'r')
-# for i in range(len(map_obj.grid)):
-#     print(map_obj.grid[i])
+for i in range(len(map_obj.grid)):
+    print(map_obj.grid[i])
+# print(map_obj.get_coords(-2,-1))
