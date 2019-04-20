@@ -71,8 +71,8 @@ class Mapping:
         self.grid = [['w'] * init_size for _ in range(init_size)]
 
         # determine centerpoint (0,0)
-        self.origin_x = math.floor(len(self.grid) / 2)
-        self.origin_y = math.floor(len(self.grid) / 2)
+        self.origin_x = int(math.floor(len(self.grid) / 2))
+        self.origin_y = int(math.floor(len(self.grid) / 2))
 
         # set robot's location at origin
         self.grid[self.origin_y][self.origin_x] = 'R'

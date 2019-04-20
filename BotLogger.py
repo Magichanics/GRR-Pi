@@ -13,13 +13,13 @@ class BotLogger:
         if direction == 'north':
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]) + 1, 'r')
 
-        if direction == 'south':
+        elif direction == 'south':
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]) - 1, 'r')
 
-        if direction == 'east':
+        elif direction == 'east':
             self.mp.set_element(int(self.coords[0]) + 1, int(self.coords[1]), 'r')
 
-        if direction == 'west':
+        elif direction == 'west':
             self.mp.set_element(int(self.coords[0]) - 1, int(self.coords[1]), 'r')
 
     # distance is in cm
@@ -36,17 +36,17 @@ class BotLogger:
             # set previous block to green; passable area
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]) - 1, 'g')
 
-        if direction == 'south':
+        elif direction == 'south':
             self.coords[1] -= distance
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]) + 1, 'g')
 
-        if direction == 'east':
+        elif direction == 'east':
             self.coords[0] += distance
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
             self.mp.set_element(int(self.coords[0]) - 1, int(self.coords[1]), 'g')
 
-        if direction == 'west':
+        elif direction == 'west':
             self.coords[0] -= distance
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
             self.mp.set_element(int(self.coords[0]) + 1, int(self.coords[1]), 'g')
