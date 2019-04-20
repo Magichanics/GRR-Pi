@@ -79,14 +79,14 @@ class Mapping:
 
     def __init__(self):
         pass
-
-if __name__ == "__main__":
-    map_obj = Mapping()
-    map_obj.create_map(1)
-    map_obj.set_element(-2, -2, 'r')
-    map_obj.set_element(2, 2, 'r')
-    map_obj.set_element(-2, 2, 'r')
-    map_obj.set_element(20, -2, 'r')
-    for i in range(len(map_obj.grid)):
-        print(map_obj.grid[i])
-    # print(map_obj.get_coords(-2,-1))
+#
+# if __name__ == "__main__":
+#     map_obj = Mapping()
+#     map_obj.create_map(1)
+#     map_obj.set_element(-2, -2, 'r')
+#     map_obj.set_element(2, 2, 'r')
+#     map_obj.set_element(-2, 2, 'r')
+#     map_obj.set_element(20, -2, 'r')
+#     for i in range(len(map_obj.grid)):
+#         print(map_obj.grid[i])
+#     # print(map_obj.get_coords(-2,-1))

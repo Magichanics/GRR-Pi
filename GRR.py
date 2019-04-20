@@ -63,6 +63,7 @@ class GreatRoamingRobot:
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
+            blog.print_map()
             GPIO.cleanup();
         
     # set IDs for the given robot
