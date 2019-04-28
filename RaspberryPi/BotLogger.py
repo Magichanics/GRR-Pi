@@ -51,7 +51,7 @@ class BotLogger:
             self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
             self.mp.set_element(int(self.coords[0]) + 1, int(self.coords[1]), 'g')
 
-    def print_map(self, save_loc='map2d.txt'):
+    def print_map(self, save_loc='map2d.mppy'):
 
         # print output in textfile
         with open(save_loc, 'w') as f:
