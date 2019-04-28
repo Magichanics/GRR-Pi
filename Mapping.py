@@ -1,10 +1,13 @@
 '''
-Author: Jan Garong
+Author: Matteo Tempo, Jan Garong
 Date: April 13th, 2019
 '''
 
 import math
 import numpy as np
+from PIL import Image
+from PIL import ImageDraw
+
 class Mapping:
 
     # gets coordinate value
@@ -77,16 +80,59 @@ class Mapping:
         # set robot's location at origin
         self.grid[self.origin_y][self.origin_x] = 'R'
 
+    def read_mppy(self, file_loc):
+
+        temp_grid = []
+
+        # open file location
+        with open(file_loc, 'r') as f:
+
+            # get first line
+            line = f.readline()
+            while line != '':
+
+                # clean string from \ns
+                line = line.strip()
+
+                # append each character
+                row = []
+                for i in range(len(line)):
+                    row.append(line[i])
+
+                temp_grid.append(row)
+
+                # get next line
+                line = f.readline()
+
+        f.close()
+
+        self.grid = temp_grid
+
+    def to_img(self, file_loc='map.png'):
+
+        # create color dictionary
+        char_dict = {"R": "black",
+                     "r": "red",
+                     "g": "green",
+                     "w": "white"}
+
+        x = len(self.grid[0])
+        y = len(self.grid)
+
+        # create new rgb image
+        img = Image.new('RGB', (x * 50, y * 50), color=(255, 255, 255))
+        draw = ImageDraw.Draw(img)
+
+        fill_colour = ""
+        for col in range(y):
+            for row in range(x):
+
+                # draw square based on color
+                fill_colour = char_dict[self.grid[col][row]]
+                draw.rectangle([(row * 50, col * 50), (row * 50 + 49, col * 50 + 49)], fill=fill_colour,
+                               outline="black")
+
+        img.save(file_loc)
+
     def __init__(self):
         pass
-#
-# if __name__ == "__main__":
-#     map_obj = Mapping()
-#     map_obj.create_map(1)
-#     map_obj.set_element(-2, -2, 'r')
-#     map_obj.set_element(2, 2, 'r')
-#     map_obj.set_element(-2, 2, 'r')
-#     map_obj.set_element(20, -2, 'r')
-#     for i in range(len(map_obj.grid)):
-#         print(map_obj.grid[i])
-#     # print(map_obj.get_coords(-2,-1))
