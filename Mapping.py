@@ -40,12 +40,23 @@ class Mapping:
                     self.grid[i].insert(0, 'w')
             self.origin_x += extend_by
 
+
+    def check_element(self, x, y):
+
+        try:
+            return self.grid[self.origin_y - y][x + self.origin_x]
+
+        # if out of bounds
+        except:
+            return 'w'
+
     # x and y are pure cartesian grid points
     def set_element(self, x, y, element):
 
         # switch signs for y values
         y = -y
 
+        # uses a list of if statements since x and y coordinates could be diagonal
         # check if exceeding south border
         if y + self.origin_y >= len(self.grid):
             self.extend_grid('south', y + self.origin_y + 1 - len(self.grid))
