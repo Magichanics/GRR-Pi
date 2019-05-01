@@ -1,57 +1,58 @@
 '''
-Author: Jan Garong
+Author: Jan Garong & Matteo Tempo
 April 20th, 2019
 '''
 from Mapping import Mapping
 import time
+import math
 
 class BotLogger:
 
-    def block_detected(self, direction):
+    def __init__(self):
+        self.curr_angle = 0
+        self.past_distance = 0
+        self.x = 0
+        self.y = 0
+        self.mp = Mapping()
+        self.mp.create_map(1)
 
-        # mark the robot block ahead as red
-        if direction == 'north':
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]) + 1, 'r')
+    def update_coords(self, total_distance, angle, x, y): # angle is relative to the north pole
 
-        elif direction == 'south':
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]) - 1, 'r')
+        # math.cos/sin only accepts radians
+        def to_radians(angle):
+            return (angle * math.pi) / 180
 
-        elif direction == 'east':
-            self.mp.set_element(int(self.coords[0]) + 1, int(self.coords[1]), 'r')
+        # get magnitude of current vector
+        magnitude = total_distance - self.past_distance
 
-        elif direction == 'west':
-            self.mp.set_element(int(self.coords[0]) - 1, int(self.coords[1]), 'r')
+        # using SOCAHTOA get the robot location (should have decimals
+        x += magnitude * math.sin(to_radians(angle))
+        y += magnitude * math.cos(to_radians(angle))
 
-    # distance is in cm
-    def add_distance(self, distance, direction):
+        return x, y
 
-        if direction == 'north':
+    def move_forward(self, total_distance, angle):
 
-            # add to y coord; moves up.
-            self.coords[1] += distance
+        # update coordinates
+        self.x, self.y = update_coords(total_distance, angle, self.x, self.y)
 
-            # set new robot location
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
+        # set total distance to be past distance
+        self.past_distance = total_distance
+        self.curr_angle = angle
 
-            # set previous block to green; passable area
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]) - 1, 'g')
+        # set current location to R; Robot.
+        self.mp.set_element(int(self.x), int(self.y), 'R')
 
-        elif direction == 'south':
-            self.coords[1] -= distance
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]) + 1, 'g')
+    def block_detected(self):
 
-        elif direction == 'east':
-            self.coords[0] += distance
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
-            self.mp.set_element(int(self.coords[0]) - 1, int(self.coords[1]), 'g')
-
-        elif direction == 'west':
-            self.coords[0] -= distance
-            self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
-            self.mp.set_element(int(self.coords[0]) + 1, int(self.coords[1]), 'g')
+        # mark the robot block 1 unit ahead as red
+        red_x, red_y = update_coords(self.past_distance + 1, self.curr_angle)
+        self.mp.set_element(int(red_x), int(red_y), 'r')
 
     def print_map(self, save_loc='map2d.mppy'):
+
+        # set new robot location
+        self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
 
         # print output in textfile
         with open(save_loc, 'w') as f:
@@ -63,17 +64,3 @@ class BotLogger:
             f.close()
 
 
-    def __init__(self):
-        self.coords = [0, 0]
-        self.mp = Mapping()
-        self.mp.create_map(1)
-
-# blog = BotLogger()
-# blog.add_distance(1, 'north')
-# blog.block_detected('north')
-# blog.add_distance(1, 'west')
-# blog.block_detected('west')
-# blog.add_distance(1, 'south')
-# blog.block_detected('south')
-# blog.add_distance(1, 'east')
-# blog.print_map()
