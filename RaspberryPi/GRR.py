@@ -2,13 +2,14 @@
 GRR script; using object-oriented programming
 '''
 
-import BotLogger as BotLogger
-import BotFunctions as BotFunctions
+from BotLogger import BotLogger
+from BotFunctions import BotFunctions
 import RPi.GPIO as GPIO
 import time
 
 class GRR(BotFunctions, BotLogger):
-
+    
+    # issues with rotating 90 code...
     # use angles to increment the angle away, until it reaches a difference of 90 degrees
     def rotate90(self):
 
@@ -19,12 +20,13 @@ class GRR(BotFunctions, BotLogger):
                 return angle
 
         init_angle = self.curr_angle
+
+        # turn left until it is roughly 90 degrees.
         while check_angle_exceed(init_angle + 90) < self.curr_angle:
-            self.curr_angle = ???
-            Ab.left()
+            self.curr_angle = self.get_angle()
+            self.left()
             time.sleep(0.01)
-        Ab.stop()
-        time.sleep(0.5)
+        self.stop()
 
     def bot_run(self):
 
@@ -38,19 +40,18 @@ class GRR(BotFunctions, BotLogger):
 
                 # if it hits object using infrared
                 if DL_status == 0 or DR_status == 0:
-                    rotate90()
-                    self.block_detected(self.total_distance)
-                    direction = rotate90_dict[direction]  # new direction
-                    print(direction)
+                    self.rotate90()
+                    self.block_detected()
+                    #direction = rotate90_dict[direction]  # new direction
+                    #print(direction)
 
                 # move forward; calculate distance
                 else:
 
                     self.forward()
-                    # get distance/angle using ultrasonic
-                    self.total_distance = ???
-                    self.curr_angle = ???
-                    self.total_distance += distance
+                    # get distance/angle using ultrasonic?
+                    self.curr_angle = self.get_angle()
+                    self.total_distance += 0.01
                     self.forward_log(self.total_distance, self.curr_angle)
 
         # stops when Ctrl+C
@@ -60,7 +61,10 @@ class GRR(BotFunctions, BotLogger):
 
     # create bot
     def __init__(self):
-        BotFunctions.__init__(cycle=10, frequency=100)
-        BotLogger.__init__()
+        BotFunctions.__init__(self)
+        BotLogger.__init__(self)
         self.total_distance = 0
 
+if __name__ == '__main__':
+    grr = GRR()
+    grr.bot_run()

@@ -19,8 +19,8 @@ class BotLogger:
     def update_coords(self, total_distance, angle, x, y): # angle is relative to the north pole
 
         # math.cos/sin only accepts radians
-        def to_radians(angle):
-            return (angle * math.pi) / 180
+        def to_radians(input_angle):
+            return (input_angle * math.pi) / 180
 
         # get magnitude of current vector
         magnitude = total_distance - self.past_distance
@@ -31,10 +31,10 @@ class BotLogger:
 
         return x, y
 
-    def move_forward(self, total_distance, angle):
+    def forward_log(self, total_distance, angle):
 
         # update coordinates
-        self.x, self.y = update_coords(total_distance, angle, self.x, self.y)
+        self.x, self.y = self.update_coords(total_distance, angle, self.x, self.y)
 
         # set total distance to be past distance
         self.past_distance = total_distance
@@ -46,13 +46,14 @@ class BotLogger:
     def block_detected(self):
 
         # mark the robot block 1 unit ahead as red
-        red_x, red_y = update_coords(self.past_distance + 1, self.curr_angle)
+        red_x, red_y = self.update_coords(self.past_distance + 1, self.curr_angle,
+                                          self.x, self.y)
         self.mp.set_element(int(red_x), int(red_y), 'r')
 
     def print_map(self, save_loc='map2d.mppy'):
 
         # set new robot location
-        self.mp.set_element(int(self.coords[0]), int(self.coords[1]), 'R')
+        self.mp.set_element(int(self.x), int(self.y), 'R')
 
         # print output in textfile
         with open(save_loc, 'w') as f:
