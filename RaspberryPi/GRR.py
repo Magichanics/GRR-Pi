@@ -1,5 +1,6 @@
 '''
 GRR script; using object-oriented programming
+Author: Jan Garong
 '''
 
 from BotLogger import BotLogger
@@ -9,24 +10,41 @@ import time
 
 class GRR(BotFunctions, BotLogger):
     
-    # issues with rotating 90 code...
     # use angles to increment the angle away, until it reaches a difference of 90 degrees
     def rotate90(self):
 
         def check_angle_exceed(angle):
-            if angle > 360:
-                return angle - 360
+            if angle < 0:
+                return angle + 360
             else:
                 return angle
+            
+        def rotate90_condition(angle1, angle2):
+            if past360: #angle1 > angle2 initially
+                return angle1 > angle2
+            else:
+                return angle1 < angle2
 
         init_angle = self.curr_angle
-
-        # turn left until it is roughly 90 degrees.
-        while check_angle_exceed(init_angle + 90) < self.curr_angle:
+        
+        # check whether it is past 360 or not
+        if check_angle_exceed(init_angle - 90) < init_angle:
+            past360 = False
+        else:
+            past360 = True
+        
+        # turn left until it is roughly 90 degrees left.
+        while rotate90_condition(check_angle_exceed(init_angle - 90),
+                                 self.curr_angle):
             self.curr_angle = self.get_angle()
             self.left()
-            time.sleep(0.01)
         self.stop()
+        
+    def rotate90_timed(self):
+        self.left()
+        time.sleep(0.15)
+        self.stop()
+        time.sleep(0.5)
 
     def bot_run(self):
 
@@ -40,8 +58,9 @@ class GRR(BotFunctions, BotLogger):
 
                 # if it hits object using infrared
                 if DL_status == 0 or DR_status == 0:
-                    self.rotate90()
+                    self.rotate90_timed()
                     self.block_detected()
+                    #time.sleep(0.5)
                     #direction = rotate90_dict[direction]  # new direction
                     #print(direction)
 
