@@ -39,6 +39,7 @@ class GRR(BotFunctions, BotLogger):
             self.curr_angle = self.get_angle()
             self.left()
         self.stop()
+        time.sleep(0.5)
         
     def rotate90_timed(self):
         self.left()
