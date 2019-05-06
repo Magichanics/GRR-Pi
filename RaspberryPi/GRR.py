@@ -9,6 +9,17 @@ import RPi.GPIO as GPIO
 import time
 
 class GRR(BotFunctions, BotLogger):
+
+    # get the current angle and total distance, and add to list
+    def debug_log(self):
+        self.dl.append(str(self.total_distance) + ' ' + str(self.curr_angle))
+
+    # save log to text
+    def export_debug_log(self, save_loc='debug_logs.txt'):
+        with open(save_loc, 'w') as f:
+            for item in self.dl:
+                f.write(item + '\n')
+            f.close()
     
     # use angles to increment the angle away, until it reaches a difference of 90 degrees
     def rotate90(self):
@@ -36,14 +47,9 @@ class GRR(BotFunctions, BotLogger):
         # turn left until it is roughly 90 degrees left.
         while rotate90_condition(check_angle_exceed(init_angle - 90),
                                  self.curr_angle):
+            self.debug_log()
             self.curr_angle = self.get_angle()
             self.left()
-        self.stop()
-        time.sleep(0.5)
-        
-    def rotate90_timed(self):
-        self.left()
-        time.sleep(0.15)
         self.stop()
         time.sleep(0.5)
 
@@ -59,8 +65,8 @@ class GRR(BotFunctions, BotLogger):
 
                 # if it hits object using infrared
                 if DL_status == 0 or DR_status == 0:
-                    self.rotate90_timed()
                     self.block_detected()
+                    self.rotate90()
                     #time.sleep(0.5)
                     #direction = rotate90_dict[direction]  # new direction
                     #print(direction)
@@ -72,18 +78,21 @@ class GRR(BotFunctions, BotLogger):
                     # get distance/angle using ultrasonic?
                     self.curr_angle = self.get_angle()
                     self.total_distance += 0.01
+                    self.debug_log()
                     self.forward_log(self.total_distance, self.curr_angle)
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
             self.print_map()
-            GPIO.cleanup();
+            self.export_debug_log()
+            GPIO.cleanup()
 
     # create bot
     def __init__(self):
         BotFunctions.__init__(self)
         BotLogger.__init__(self)
         self.total_distance = 0
+        self.dl = []
 
 if __name__ == '__main__':
     grr = GRR()
