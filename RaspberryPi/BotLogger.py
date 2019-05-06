@@ -40,8 +40,8 @@ class BotLogger:
         self.past_distance = total_distance
         self.curr_angle = angle
 
-        # set current location to R; Robot.
-        self.mp.set_element(int(self.x), int(self.y), 'R')
+        # set current location to green.
+        self.mp.set_element(int(self.x), int(self.y), 'g')
 
     def block_detected(self):
 
@@ -52,8 +52,17 @@ class BotLogger:
 
     def print_map(self, save_loc='map2d.mppy'):
 
+        # get rid of any "robots"
+        for i in range(len(self.mp.grid)):
+            for j in range(len(self.mp.grid[0])):
+                if self.mp.grid[i][j] == 'R':  # and i != int(self.y) and j != int(self.x):
+                    self.mp.grid[i][j] = 'g'
+
         # set new robot location
         self.mp.set_element(int(self.x), int(self.y), 'R')
+
+        # mark origin with a yellow
+        self.mp.set_element(0, 0, 'y')
 
         # print output in textfile
         with open(save_loc, 'w') as f:
