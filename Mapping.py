@@ -5,7 +5,7 @@ Date: April 13th, 2019
 
 import math
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from PIL import ImageDraw
 
 class Mapping:
@@ -125,7 +125,8 @@ class Mapping:
         char_dict = {"R": "black",
                      "r": "red",
                      "g": "green",
-                     "w": "white"}
+                     "w": "white",
+                     "y": "yellow"}
 
         x = len(self.grid[0])
         y = len(self.grid)
