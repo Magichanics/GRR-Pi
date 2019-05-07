@@ -25,8 +25,8 @@ class BotFunctions:
         self.stop()
 
     def __init__(self, ain1=12, ain2=13, ena=6,
-                 bin1=20, bin2=21, enb=26, cycle=10, dr=16, dl=19,
-                 frequency=100):
+                 bin1=20, bin2=21, enb=26, cycle=20, dr=16, dl=19,
+                 frequency=200):
 
         # set socket ids
         # movement
@@ -151,16 +151,16 @@ class BotFunctions:
         GPIO.output(self.BIN2, GPIO.LOW)
 
     def left(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(15)
+        self.PWMB.ChangeDutyCycle(15)
         GPIO.output(self.AIN1, GPIO.HIGH)
         GPIO.output(self.AIN2, GPIO.LOW)
         GPIO.output(self.BIN1, GPIO.LOW)
         GPIO.output(self.BIN2, GPIO.HIGH)
 
     def right(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(15)
+        self.PWMB.ChangeDutyCycle(15)
         GPIO.output(self.AIN1, GPIO.LOW)
         GPIO.output(self.AIN2, GPIO.HIGH)
         GPIO.output(self.BIN1, GPIO.HIGH)
