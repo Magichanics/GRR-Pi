@@ -17,4 +17,5 @@ Robot (AlphaBot2-Pi) that autonomously creates maps.
 
 ## Credits
 Code created by Jan Garong and Matteo Tempo
+
 [ssd-keras](https://github.com/pierluigiferrari/ssd_keras) created by Pierluigi Ferrari
