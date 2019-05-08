@@ -3,9 +3,8 @@ Robot (AlphaBot2-Pi) that autonomously creates maps, storing information that th
 
 ## Instructions
 1. Install the following dependencies listed below.
-2. Clone [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) and place all of its contents in GRR-Pi/ssd_keras directory. Make sure that the ``__init__.py`` initially found in the GRR-Pi/ssd_keras folder is kept there.
-3. Download the weights provided in the repository (or click [here](https://drive.google.com/file/d/19NIa0baRCFYT3iRxQkOKCD7CpN6BFO8p/view). Make sure you load these weights into the control panel.
-4. Copy python files in the RaspberryPi folder into your Raspberry Pi.
+2. Download any of the SSD512 weights provided in [this repository](https://github.com/pierluigiferrari/ssd_keras). Make sure these weights are loaded in the directory.
+3. Copy python files in the RaspberryPi folder into your Raspberry Pi.
 
 ## Testing G.R.R.
 1. Run the control panel, and make sure your raspberry pi and laptop is connected to the same network.
