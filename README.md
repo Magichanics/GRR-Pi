@@ -28,5 +28,7 @@ Robot (AlphaBot2-Pi) that autonomously creates maps, storing information that th
 [v1.0-Alpha flowchart](https://github.com/Magichanics/GRR-Pi/blob/c3b9f0c6a45b725a5bf3c15971ff976d40f442e5/version_flowchart.png)
 
 ## Credits
-* Code created by Jan Garong and Matteo Tempo
+* Developed by Jan Garong and Matteo Tempo
 * [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) created by Pierluigi Ferrari
+* [Find Heading by using HMC5883L interface with Raspberry Pi using Python](http://www.electronicwings.com) created by electronicwings.
+* [AlphaBot2.py](https://www.waveshare.com/) provided by waveshare.
