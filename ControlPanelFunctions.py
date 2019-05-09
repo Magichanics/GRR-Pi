@@ -3,9 +3,18 @@ Author: Jan Garong
 May 5th, 2019
 '''
 from Mapping import Mapping
+from imageio import imread
+from keras.preprocessing import image
+from SSDKeras import SDDNeuralNetwork512
 import os
 
 class ControlPanelFunctions:
+
+    def img_to_array(self, img_path):
+        # convert image to array to fit into neural network
+        img = image.load_img(img_path, target_size=(512, 512))
+        img = image.img_to_array(img)
+        return img
 
     def read_from_pi(self, ip_address, pi_file_loc,
                      save_loc):
@@ -23,18 +32,8 @@ class ControlPanelFunctions:
         # export to png
         map_obj.to_img(img_loc)
 
+    # initialize neural network
     def __init__(self):
-        pass
+        self.nn = SDDNeuralNetwork512(weights_path='VGG_VOC0712_SSD_512x512_iter_120000.h5')
 
-if __name__ == '__main__':
 
-    cpf = ControlPanelFunctions()
-
-    ip = input('enter ip address')
-
-    # get user input
-    cpf.read_from_pi(ip, '~/map2d.mppy', '.')
-    loc2 = input('enter png file location')
-
-    # export to image
-    cpf.mppy_to_img('map2d.mppy', loc2)

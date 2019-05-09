@@ -52,7 +52,7 @@ class SDDNeuralNetwork512:
         y_pred = y_pred_thresh[0].tolist()
 
         # get dataset
-        return self.get_pred_csv(y_pred), input_images[0]
+        return self.get_pred_csv(y_pred)
 
     # setup neural network
     def __init__(self, weights_path='VGG_VOC0712_SSD_512x512_iter_120000.h5'): # assume weights are in the master folder.
