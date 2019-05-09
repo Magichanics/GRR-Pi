@@ -5,6 +5,7 @@ Author: Jan Garong
 
 from BotLogger import BotLogger
 from BotFunctions import BotFunctions
+from CameraFunctions import CameraFunctions
 import RPi.GPIO as GPIO
 import time
 
@@ -98,9 +99,18 @@ class GRR(BotFunctions, BotLogger):
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
-            self.print_map()
-            self.export_debug_log()
+            
+            # stop map
             GPIO.cleanup()
+            
+            # save items
+            self.print_map()
+            if self.debug_mode:
+                self.export_debug_log()
+                
+            # take a picture
+            cf = CameraFunctions()
+            cf.take_img('original.png', new_file_loc='resized.png')
 
     # create bot, initializing values.
     def __init__(self, debug_mode=False, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
