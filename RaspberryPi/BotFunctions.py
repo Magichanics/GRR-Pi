@@ -26,8 +26,9 @@ class BotFunctions:
 
     def __init__(self, ain1=12, ain2=13, ena=6,
                  bin1=20, bin2=21, enb=26, cycle=20, dr=16, dl=19,
-                 frequency=200):
-
+                 frequency=200, rot_cycle=50):
+        
+        self.rot_cycle = rot_cycle
         # set socket ids
         # movement
         self.AIN1 = ain1
@@ -78,6 +79,25 @@ class BotFunctions:
         self.Device_Address = 0x1e  # HMC5883L magnetometer device address
 
         self.Magnetometer_Init()  # initialize HMC5883L magnetometer
+        
+        # ultrasonic ranging
+        self.TRIG = 22
+        self.ECHO = 27
+
+        GPIO.setup(self.TRIG,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.ECHO,GPIO.IN)
+        
+    def dist(self):
+        GPIO.output(self.TRIG,GPIO.HIGH)
+        time.sleep(0.000015)
+        GPIO.output(self.TRIG,GPIO.LOW)
+        while not GPIO.input(self.ECHO):
+            pass
+        t1 = time.time()
+        while GPIO.input(self.ECHO):
+            pass
+        t2 = time.time()
+        return (t2-t1)*34000/2 # in cm
 
     def get_angle(self):
 
@@ -151,16 +171,16 @@ class BotFunctions:
         GPIO.output(self.BIN2, GPIO.LOW)
 
     def left(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(self.rot_cycle)
+        self.PWMB.ChangeDutyCycle(self.rot_cycle)
         GPIO.output(self.AIN1, GPIO.HIGH)
         GPIO.output(self.AIN2, GPIO.LOW)
         GPIO.output(self.BIN1, GPIO.LOW)
         GPIO.output(self.BIN2, GPIO.HIGH)
 
     def right(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(self.rot_cycle)
+        self.PWMB.ChangeDutyCycle(self.rot_cycle)
         GPIO.output(self.AIN1, GPIO.LOW)
         GPIO.output(self.AIN2, GPIO.HIGH)
         GPIO.output(self.BIN1, GPIO.HIGH)

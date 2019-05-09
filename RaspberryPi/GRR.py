@@ -32,6 +32,18 @@ class GRR(BotFunctions, BotLogger):
                 f.close()
         else:
             pass
+    
+    def velocity_run(self):
+        
+        # get starting distance
+        init_dist = self.dist()
+        
+        # move forward for 3 seconds
+        self.forward()
+        time.sleep(3)
+        
+        # get difference of distance between two points
+        return abs(self.dist() - init_dist)
 
     def bot_run(self):
 
@@ -40,13 +52,14 @@ class GRR(BotFunctions, BotLogger):
             while True:
 
                 # check left sensors
-                if GPIO.input(self.DL) == 0: # simplify
+                if GPIO.input(self.DL) == 0:
                     
                     # turn right until it detects a block
                     while GPIO.input(self.DL) == 0:
                         self.block_detected()
                         self.left()
                     self.stop()
+                    self.temp_time = time.time()
                 
                 # check right sensors
                 if GPIO.input(self.DR) == 0:
@@ -56,14 +69,17 @@ class GRR(BotFunctions, BotLogger):
                         self.block_detected()
                         self.right()
                     self.stop()
+                    self.temp_time = time.time()
 
                 # move forward; calculate distance
                 #else:
                 while (GPIO.input(self.DR) and GPIO.input(self.DL)):
+                    
+                    #print(self.dist())
 
                     # get distance/angle using ultrasonic?
                     self.curr_angle = self.get_angle()
-                    self.total_distance += 0.02
+                    self.total_distance += (self.velocity * (time.time() - self.temp_time))/10 # vt = d
                     self.debug_log()
                     
                     # preform movement
@@ -71,6 +87,9 @@ class GRR(BotFunctions, BotLogger):
 
                     # log forward movement
                     self.forward_log(self.total_distance, self.curr_angle)
+                    
+                    # get temp time
+                    self.temp_time = time.time()
                     
                 # stop robot to prevent inaccuracies
                 self.stop()
@@ -83,15 +102,18 @@ class GRR(BotFunctions, BotLogger):
             self.export_debug_log()
             GPIO.cleanup()
 
-    # create bot
-    def __init__(self, debug_mode=False):
+    # create bot, initializing values.
+    def __init__(self, debug_mode=False, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
         self.debug_mode = debug_mode
-        BotFunctions.__init__(self, cycle=20, frequency=200)
+        self.velocity = velocity
+        BotFunctions.__init__(self, cycle=cycle, frequency=frequency)
         BotLogger.__init__(self)
         self.total_distance = 0
         self.dl = []
         self.init_time = time.time()
+        self.temp_time = self.init_time
 
 if __name__ == '__main__':
     grr = GRR()
+    #print(grr.velocity_run())
     grr.bot_run()
