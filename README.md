@@ -22,6 +22,14 @@ Robot (AlphaBot2-Pi) that autonomously creates maps, storing information that th
 * Keras
 * Imageio
 
+## To Do List
+* Multithreading Functions - May 11th, 2019
+* Control Panel - May 17th, 2019
+* Shortest Path Algorithm - May 20th, 2019
+* Efficient Movement Algorithm - May 26th, 2019
+* Map Viewer (.mppy) - May 29th, 2019
+* Full Documentation and Application - June 6th, 2019
+
 ## Flowchart (v1.5-Alpha)
 ![alt text](https://github.com/Magichanics/GRR-Pi/blob/be8724e657bfecf57ec7b9cd98e724eef330caae/curr_ver.png)
 
