@@ -13,7 +13,7 @@ import PIL
 from PIL import Image
 import os
 
-class CameraFunctions:
+class CameraFunctions():
 
     def take_img(self, file_loc, resize=True, new_file_loc='resized.png'):
         
@@ -32,19 +32,14 @@ class CameraFunctions:
         # get image
         img = Image.open(file_loc)
         
-#        # determine the ratio needed to have the highest dimension down to 512
-#        ratio = 512 / max(img.size[0], img.size[1])
-#        
-#        # resize and save image to location
-#        img = img.resize((int(float(img.size[0]) * ratio), int(float(img.size[1]) * ratio)),
-#                         PIL.Image.ANTIALIAS)
-        
         # resize and save image to location
         img = img.resize((512, 512),
                          PIL.Image.ANTIALIAS)
         
         img.save(new_file_loc)
 
+    # use multithreading to make sure camera capture does not interfere with
+    # main loop.
     def __init__(self):
         pass
     

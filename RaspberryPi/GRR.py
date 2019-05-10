@@ -6,16 +6,29 @@ Author: Jan Garong
 from BotLogger import BotLogger
 from BotFunctions import BotFunctions
 from CameraFunctions import CameraFunctions
+from multiprocessing import Process
 import RPi.GPIO as GPIO
 import time
 
 class GRR(BotFunctions, BotLogger):
 
+    def take_picture(self):
+
+        # take a picture and use multiprocessing
+        cf = CameraFunctions()
+        p = Process(target=cf.take_img,
+                    args=('original.png', True, 'resized.png'))
+
+        # start separate process
+        p.start()
+        p.join()
+
     # get the current angle and total distance, and add to list
     def debug_log(self):
         if self.debug_mode:
             self.dl.append(str(len(self.dl) - 1) + ',' + str(self.total_distance) + ',' \
-                           + str(self.curr_angle) + ',' + str(time.time() - self.init_time))
+                           + str(self.curr_angle) + ',' + str(time.time() - self.init_time) \
+                           + ',' + str(self.dist()))
         else:
             pass
         
@@ -25,7 +38,7 @@ class GRR(BotFunctions, BotLogger):
             with open(save_loc, 'w') as f:
 
                 # write csv headings
-                f.write(',total_distance,angle,seconds')
+                f.write(',total_distance,angle,seconds,ultrasonic_distance')
 
                 # write csv contents
                 for item in self.dl:
@@ -75,8 +88,6 @@ class GRR(BotFunctions, BotLogger):
                 # move forward; calculate distance
                 #else:
                 while (GPIO.input(self.DR) and GPIO.input(self.DL)):
-                    
-                    #print(self.dist())
 
                     # get distance/angle using ultrasonic?
                     self.curr_angle = self.get_angle()
@@ -105,12 +116,9 @@ class GRR(BotFunctions, BotLogger):
             
             # save items
             self.print_map()
+            self.take_picture()
             if self.debug_mode:
                 self.export_debug_log()
-                
-            # take a picture
-            cf = CameraFunctions()
-            cf.take_img('original.png', new_file_loc='resized.png')
 
     # create bot, initializing values.
     def __init__(self, debug_mode=False, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
