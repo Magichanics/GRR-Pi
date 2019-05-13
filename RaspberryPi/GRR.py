@@ -10,43 +10,59 @@ from multiprocessing import Process
 import RPi.GPIO as GPIO
 import time
 
+
 class GRR(BotFunctions, BotLogger):
 
     def take_picture(self):
 
-        # take a picture and use multiprocessing
+        # take a picture
         cf = CameraFunctions()
         p = Process(target=cf.take_img,
-                    args=('original.png', True, 'resized.png'))
+                    args=('/temp/original.png', True, '/temp/resized' + str(len(self.cl))
+                          + '.png'))
+
 
         # start separate process
         p.start()
         p.join()
+        #cf.take_img('original.png', True, 'resized' + str(len(self.cl)) + '.png')
+
+        # write robot's location and image location to csv sheet
+        self.cl.append(str(len(self.cl)) + ',' + 'resized' + str(len(self.cl)) + '.png,' + str(self.x) + ',' +
+                       str(self.y))
 
     # get the current angle and total distance, and add to list
     def debug_log(self):
         if self.debug_mode:
-            self.dl.append(str(len(self.dl) - 1) + ',' + str(self.total_distance) + ',' \
+            self.dl.append(str(len(self.dl)) + ',' + str(self.total_distance) + ',' \
                            + str(self.curr_angle) + ',' + str(time.time() - self.init_time) \
                            + ',' + str(self.dist()))
         else:
             pass
         
     # save log to text
-    def export_debug_log(self, save_loc='debug_logs.txt'):
-        if self.debug_mode:
-            with open(save_loc, 'w') as f:
+    def export_debug_log(self, save_loc='/temp/debug_logs.csv'):
+        with open(save_loc, 'w') as f:
 
-                # write csv headings
-                f.write(',total_distance,angle,seconds,ultrasonic_distance')
+            # write csv headings
+            f.write(',total_distance,angle,seconds,ultrasonic_distance\n')
 
-                # write csv contents
-                for item in self.dl:
-                    f.write(item + '\n')
-                f.close()
-        else:
-            pass
-    
+            # write csv contents
+            for item in self.dl:
+                f.write(item + '\n')
+            f.close()
+
+    def export_camera_log(self, save_loc='/temp/camera_log.csv'):
+        with open(save_loc, 'w') as f:
+
+            # write csv headings
+            f.write(',img_name,x,y\n')
+
+            # write csv contents
+            for item in self.cl:
+                f.write(item + '\n')
+            f.close()
+
     def velocity_run(self):
         
         # get starting distance
@@ -59,7 +75,10 @@ class GRR(BotFunctions, BotLogger):
         # get difference of distance between two points
         return abs(self.dist() - init_dist)
 
-    def bot_run(self):
+    def bot_run(self, camera_timer=30):
+
+        # start timer
+        self.start_time = time.time()
 
         try:
 
@@ -102,7 +121,15 @@ class GRR(BotFunctions, BotLogger):
                     
                     # get temp time
                     self.temp_time = time.time()
-                    
+
+                    # check if it's time to take a picture in 10 seconds
+                    if self.start_time + camera_timer <= time.time():
+                        self.stop()
+                        self.take_picture()
+                        self.start_time = time.time()
+                        self.temp_time = time.time()
+
+
                 # stop robot to prevent inaccuracies
                 self.stop()
                 
@@ -117,6 +144,7 @@ class GRR(BotFunctions, BotLogger):
             # save items
             self.print_map()
             self.take_picture()
+            self.export_camera_log()
             if self.debug_mode:
                 self.export_debug_log()
 
@@ -127,11 +155,17 @@ class GRR(BotFunctions, BotLogger):
         BotFunctions.__init__(self, cycle=cycle, frequency=frequency)
         BotLogger.__init__(self)
         self.total_distance = 0
-        self.dl = []
+        self.dl = [] # debug log
+        self.cl = [] # camera log
         self.init_time = time.time()
         self.temp_time = self.init_time
+
+        # create temporary directory
+        if not os.path.exists('temp'):
+            os.makedirs('temp')
+
 
 if __name__ == '__main__':
     grr = GRR()
     #print(grr.velocity_run())
-    grr.bot_run()
+    grr.bot_run(camera_timer=5)
