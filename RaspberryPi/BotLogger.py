@@ -50,7 +50,7 @@ class BotLogger:
                                           self.x, self.y)
         self.mp.set_element(int(red_x), int(red_y), 'r')
 
-    def print_map(self, save_loc='map2d.mppy'):
+    def print_map(self, save_loc='map2d.txt'):
 
         # get rid of any "robots"
         for i in range(len(self.mp.grid)):

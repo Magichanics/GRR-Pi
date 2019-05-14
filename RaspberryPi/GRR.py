@@ -5,10 +5,11 @@ Author: Jan Garong
 
 from BotLogger import BotLogger
 from BotFunctions import BotFunctions
-from CameraFunctions import CameraFunctions
 from multiprocessing import Process
 import RPi.GPIO as GPIO
+import shutil
 import time
+import os
 
 
 class GRR(BotFunctions, BotLogger):
@@ -16,16 +17,15 @@ class GRR(BotFunctions, BotLogger):
     def take_picture(self):
 
         # take a picture
-        cf = CameraFunctions()
-        p = Process(target=cf.take_img,
-                    args=('/temp/original.png', True, '/temp/resized' + str(len(self.cl))
-                          + '.png'))
-
-
-        # start separate process
-        p.start()
-        p.join()
-        #cf.take_img('original.png', True, 'resized' + str(len(self.cl)) + '.png')
+#        p = Process(target=self.take_img,
+#                    args=('resized' + str(len(self.cl)) + '.png'))
+#
+#
+#        # start separate process
+#        p.start()
+#        p.join()
+        
+        self.take_img('temp/resized' + str(len(self.cl)) + '.png')
 
         # write robot's location and image location to csv sheet
         self.cl.append(str(len(self.cl)) + ',' + 'resized' + str(len(self.cl)) + '.png,' + str(self.x) + ',' +
@@ -41,7 +41,7 @@ class GRR(BotFunctions, BotLogger):
             pass
         
     # save log to text
-    def export_debug_log(self, save_loc='/temp/debug_logs.csv'):
+    def export_debug_log(self, save_loc='debug_logs.csv'):
         with open(save_loc, 'w') as f:
 
             # write csv headings
@@ -52,7 +52,7 @@ class GRR(BotFunctions, BotLogger):
                 f.write(item + '\n')
             f.close()
 
-    def export_camera_log(self, save_loc='/temp/camera_log.csv'):
+    def export_camera_log(self, save_loc='temp/camera_log.csv'):
         with open(save_loc, 'w') as f:
 
             # write csv headings
@@ -62,6 +62,33 @@ class GRR(BotFunctions, BotLogger):
             for item in self.cl:
                 f.write(item + '\n')
             f.close()
+            
+    def clear_files(self, path='temp/'):
+        
+        # unlink files in folder
+        for file in os.listdir(path):
+            file_path = os.path.join(path, file) # get file path
+
+            # remove file
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+
+            # remove directory
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        
+
+    def export_data_zip(self, path='temp/'):
+
+        # get map
+        self.print_map(path + 'map.txt')
+
+        # get camera log
+        self.export_camera_log(path + 'camera_log.csv')
+
+        # zip all contents in the file
+        shutil.make_archive('data', 'zip', path)
+
 
     def velocity_run(self):
         
@@ -126,14 +153,13 @@ class GRR(BotFunctions, BotLogger):
                     if self.start_time + camera_timer <= time.time():
                         self.stop()
                         self.take_picture()
+                        self.export_data_zip()
                         self.start_time = time.time()
                         self.temp_time = time.time()
 
 
                 # stop robot to prevent inaccuracies
                 self.stop()
-                
-                self.print_map()
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
@@ -141,12 +167,11 @@ class GRR(BotFunctions, BotLogger):
             # stop map
             GPIO.cleanup()
             
-            # save items
-            self.print_map()
-            self.take_picture()
-            self.export_camera_log()
+            # remove files
+            self.clear_files()
             if self.debug_mode:
                 self.export_debug_log()
+
 
     # create bot, initializing values.
     def __init__(self, debug_mode=False, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
@@ -162,7 +187,11 @@ class GRR(BotFunctions, BotLogger):
 
         # create temporary directory
         if not os.path.exists('temp'):
-            os.makedirs('temp')
+           os.makedirs('temp')
+
+        # # create blank files for modification
+        # open("temp/map.txt","w+").close()
+        # open('temp/debug_logs.csv',"w+").close()
 
 
 if __name__ == '__main__':
