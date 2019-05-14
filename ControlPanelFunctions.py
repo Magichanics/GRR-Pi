@@ -3,10 +3,10 @@ Author: Jan Garong
 May 5th, 2019
 '''
 from Mapping import Mapping
-from imageio import imread
 from keras.preprocessing import image
 from SSDKeras import SDDNeuralNetwork512
 import os
+import zipfile
 
 class ControlPanelFunctions:
 
@@ -16,24 +16,37 @@ class ControlPanelFunctions:
         img = image.img_to_array(img)
         return img
 
-    def read_from_pi(self, ip_address, pi_file_loc,
-                     save_loc):
+    def collect_data(self, ip_address, data_path='~/data.zip',
+                     save_path='temp/'):
 
         # read from pi robot using commandline and scp
-        os.system('scp pi@' + ip_address + ':' + pi_file_loc + ' '
-                  + save_loc)
+        os.system('scp pi@' + ip_address + ':' + data_path + ' '
+                  + save_path)
 
-    def mppy_to_img(self, mppy_loc, img_loc):
+        # unzip
+        zr = zipfile.Zipfile('temp/data.zip','r')
+        zr.extractall('temp/')
+        zr.close()
 
-        # read mppy file
-        map_obj = Mapping()
-        map_obj.read_mppy(mppy_loc)
+        # delete file
 
-        # export to png
-        map_obj.to_img(img_loc)
+    # def mppy_to_img(self, img_map_loc):
+    #
+    #     # read mppy file
+    #     map_obj = Mapping()
+    #     map_obj.read_mppy(self.mppy_loc)
+    #
+    #     # export to png
+    #     map_obj.to_img(img_map_loc)
 
     # initialize neural network
     def __init__(self):
+
+        # assign weights and neural network
         self.nn = SDDNeuralNetwork512(weights_path='VGG_VOC0712_SSD_512x512_iter_120000.h5')
+
+        # create temporary directory
+        if not os.path.exists('temp'):
+            os.makedirs('temp')
 
 
