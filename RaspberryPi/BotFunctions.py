@@ -1,8 +1,17 @@
 '''
-Original code from waveshare (AlphaBot2.py)
+
+@jangarong
+
+Initial code from waveshare (AlphaBot2.py)
 
 Find Heading by using HMC5883L interface with Raspberry Pi using Python
 http://www.electronicwings.com
+
+Using the Camera manual:
+https://www.waveshare.com/w/upload/6/61/RPi-Camera-User-Manual.pdf
+
+raspistill:
+https://www.raspberrypi.org/documentation/usage/camera/raspicam/raspistill.md
 
 '''
 import RPi.GPIO as GPIO
@@ -10,8 +19,28 @@ import time
 import smbus        #import SMBus module of I2C
 #from time import sleep  #import sleep
 import math
+import PIL
+from PIL import Image
+import os
 
 class BotFunctions:
+
+    def take_img(self, file_loc):
+
+        print('taking picture...')
+
+        # take picture using camera
+        os.system('raspistill -o ' + file_loc)
+
+        # get image
+        img = Image.open(file_loc)
+
+        # resize and save image to location
+        img = img.resize((512, 512),
+                         PIL.Image.ANTIALIAS)
+
+        # save image
+        img.save(file_loc)
 
     # if the user wants to change the speed.
     def stop_set_speed(self, cycle, frequency):
