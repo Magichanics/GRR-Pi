@@ -23,11 +23,11 @@ Robot (AlphaBot2-Pi) that autonomously creates maps, storing information that th
 * Imageio
 
 ## To Do List
-* Multithreading Functions - May 11th, 2019
-* Control Panel - May 17th, 2019
+* Starter Control Panel - May 17th, 2019
 * Shortest Path Algorithm - May 20th, 2019
 * Efficient Movement Algorithm - May 26th, 2019
 * Map Viewer (.mppy) - May 29th, 2019
+* Full Working Application (Control Panel & Robot) - June 3rd, 2019
 * Full Documentation and Application - June 6th, 2019
 
 ## Flowchart (v1.5-Alpha)
