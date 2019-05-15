@@ -2,29 +2,26 @@
 Author: Jan Garong
 '''
 
-import cv2
 from ControlPanelFunctions import ControlPanelFunctions
+import time
 
 ip = input('enter ip_address')
 
 cpf = ControlPanelFunctions()
 
-# extract data
-cpf.collect_data(ip)
+try:
+    while True:
 
-# # export to image
-# cpf.mppy_to_img('temp/mp2d.png')
-#
-# # resize image
-# img_display = cv2.imread('temp/original.png')
-# img_display.resize((512,512))
-#
-# # predict image
-# img_array = cpf.img_to_array('temp/original.png')
-# y_test = cpf.nn.predict(img_array,
-#                         confidence_threshold=0.65)
-# print(y_test)
-# cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-# cv2.imshow('image',img_display)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+        # extract data
+        cpf.collect_data(ip)
+        cpf = ControlPanelFunctions()
+
+        # save files
+        cpf.predict_camera_data()
+        cpf.get_map()
+
+        # 1 second delay
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print('finishing operations...')
