@@ -3,6 +3,7 @@ Author: Jan Garong
 May 5th, 2019
 '''
 from Mapping import Mapping
+from VisualizationFunctions import VisualizationFunctions
 import pandas as pd
 from keras.preprocessing import image
 from SSDKeras import SDDNeuralNetwork512
@@ -10,8 +11,24 @@ import os
 import zipfile
 import cv2
 from PIL import Image, ImageDraw
+import shutil
 
-class ControlPanelFunctions:
+
+class ControlPanelFunctions(VisualizationFunctions):
+
+    def clear_files(self, path='temp/'):
+
+        # unlink files in folder
+        for file in os.listdir(path):
+            file_path = os.path.join(path, file)  # get file path
+
+            # remove file
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+
+            # remove directory
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
     def collect_data(self, ip_address, data_path='~/data.zip', # must end with data.zip
                      save_path='temp/'):
@@ -105,12 +122,15 @@ class ControlPanelFunctions:
     # initialize neural network
     def __init__(self):
 
+        # inherit visualizations
+        VisualizationFunctions.__init__(self)
+
         # assign weights and neural network
         self.nn = SDDNeuralNetwork512(weights_path='VGG_VOC0712_SSD_512x512_iter_120000.h5')
 
         # create color tuple list
         self.color_tuples = []
-        rgb_values = [25, 50, 75]
+        rgb_values = [100, 150, 200]
         for i_item in rgb_values:
             for j_item in rgb_values:
                 for k_item in rgb_values:

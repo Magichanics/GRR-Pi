@@ -5,23 +5,34 @@ Author: Jan Garong
 from ControlPanelFunctions import ControlPanelFunctions
 import time
 
-ip = input('enter ip_address')
+def run(ip):
 
-cpf = ControlPanelFunctions()
+    cpf = ControlPanelFunctions()
 
-try:
-    while True:
+    try:
+        while True:
 
-        # extract data
-        cpf.collect_data(ip)
-        cpf = ControlPanelFunctions()
+            # time this run
+            start = time.time()
 
-        # save files
-        cpf.predict_camera_data()
-        cpf.get_map()
+            # extract data
+            cpf.collect_data(ip)
+            cpf = ControlPanelFunctions()
 
-        # 1 second delay
-        time.sleep(1)
+            # save files
+            cpf.predict_camera_data()
+            cpf.get_map()
 
-except KeyboardInterrupt:
-    print('finishing operations...')
+            # end timer
+            print('finished iteration')
+            print(time.time() - start)
+
+    # if the user wants to exit
+    except KeyboardInterrupt:
+        print('finishing operations... do not forcefully exit.')
+
+    # if file not found (means robot has not run yet)
+    except FileNotFoundError:
+        run(ip)
+
+run(input('enter ip_address'))
