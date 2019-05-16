@@ -15,11 +15,11 @@ https://www.raspberrypi.org/documentation/usage/camera/raspicam/raspistill.md
 
 '''
 import RPi.GPIO as GPIO
+from picamera import PiCamera
 import time
 import smbus        #import SMBus module of I2C
-#from time import sleep  #import sleep
 import math
-import PIL
+#import PIL
 from PIL import Image
 import os
 
@@ -27,20 +27,19 @@ class BotFunctions:
 
     def take_img(self, file_loc):
 
-        print('taking picture...')
-
         # take picture using camera
-        os.system('raspistill -o ' + file_loc)
+        self.camera.capture(file_loc)
 
         # get image
         img = Image.open(file_loc)
 
         # resize and save image to location
-        img = img.resize((512, 512),
-                         PIL.Image.ANTIALIAS)
+        # img = img.resize((512, 512),
+        #                  PIL.Image.ANTIALIAS)
 
         # save image
         img.save(file_loc)
+
 
     # if the user wants to change the speed.
     def stop_set_speed(self, cycle, frequency):
@@ -56,6 +55,9 @@ class BotFunctions:
     def __init__(self, ain1=12, ain2=13, ena=6,
                  bin1=20, bin2=21, enb=26, cycle=20, dr=16, dl=19,
                  frequency=200, rot_cycle=50):
+
+        self.camera = PiCamera()
+        self.camera.start_preview()
         
         self.rot_cycle = rot_cycle
         # set socket ids

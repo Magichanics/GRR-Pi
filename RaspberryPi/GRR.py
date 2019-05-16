@@ -5,7 +5,7 @@ Author: Jan Garong
 
 from BotLogger import BotLogger
 from BotFunctions import BotFunctions
-from multiprocessing import Process
+#from multiprocessing import Process
 import RPi.GPIO as GPIO
 import math
 import shutil
@@ -190,7 +190,27 @@ class GRR(BotFunctions, BotLogger):
             GPIO.cleanup()
             
             # remove files
+            self.camera.stop_preview()
             self.clear_files()
+
+    def rotate(self, degrees):
+
+        init_angle = self.get_angle()
+
+        # rotate clockwise
+        while degrees >= self.get_angle():
+            self.right()
+
+    def unit_forward(self, seconds):
+
+        # start timer
+        init_time = time.time()
+
+        # move forward until time is up or until it hits an object
+        while GPIO.input(self.DR) and GPIO.input(self.DL) and \
+                init_time + seconds > time.time():
+            self.forward()
+
 
     # create bot, initializing values.
     def __init__(self, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
