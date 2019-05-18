@@ -24,22 +24,10 @@ from PIL import Image
 import os
 
 class BotFunctions:
-
+    
+    # take picture using camera via video port
     def take_img(self, file_loc):
-
-        # take picture using camera
-        self.camera.capture(file_loc)
-
-        # get image
-        img = Image.open(file_loc)
-
-        # resize and save image to location
-        # img = img.resize((512, 512),
-        #                  PIL.Image.ANTIALIAS)
-
-        # save image
-        img.save(file_loc)
-
+        self.camera.capture(file_loc, use_video_port=True)
 
     # if the user wants to change the speed.
     def stop_set_speed(self, cycle, frequency):
@@ -57,7 +45,7 @@ class BotFunctions:
                  frequency=200, rot_cycle=50):
 
         self.camera = PiCamera()
-        self.camera.start_preview()
+        self.camera.resolution = (640, 480)
         
         self.rot_cycle = rot_cycle
         # set socket ids

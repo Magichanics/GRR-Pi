@@ -5,7 +5,7 @@ Author: Jan Garong
 
 from BotLogger import BotLogger
 from BotFunctions import BotFunctions
-#from multiprocessing import Process
+from multiprocessing import Process
 import RPi.GPIO as GPIO
 import math
 import shutil
@@ -91,16 +91,13 @@ class GRR(BotFunctions, BotLogger):
     def log_items(self, camera_seconds, displacement_seconds):
 
         # check if it should take pictures
-        if time.time() >= self.camera_time + camera_seconds:
-
-            # stop the robot
+        if time.time() >= self.camera_time + camera_seconds and \
+           GPIO.input(self.DL) == 1 and GPIO.input(self.DL) == 1:
+            
             self.stop()
 
             # take a picture
             self.take_picture(time.time() - self.camera_time)
-
-            # zip all data
-            self.export_data_zip()
 
             # reset timers
             self.camera_time = time.time()
@@ -185,6 +182,9 @@ class GRR(BotFunctions, BotLogger):
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
+            
+            # zip all data
+            self.export_data_zip()
             
             # stop map
             GPIO.cleanup()
