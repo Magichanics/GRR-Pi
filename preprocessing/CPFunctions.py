@@ -11,6 +11,7 @@ import os
 import zipfile
 import cv2
 from PIL import Image, ImageDraw
+import PIL
 import shutil
 
 

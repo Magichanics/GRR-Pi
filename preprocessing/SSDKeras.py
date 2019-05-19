@@ -82,6 +82,7 @@ class SDDNeuralNetwork512:
 
         # load weights
         self.model.load_weights(weights_path, by_name=True)
+        #self.model.load_weights(weights_path)
 
         # compile model
         adam = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
