@@ -5,7 +5,7 @@ Robot that autonomously creates maps, storing information that the robot recieve
 1. Install the following dependencies listed below.
 2. Download any of the SSD512 weights provided in [this repository](https://github.com/pierluigiferrari/ssd_keras). Make sure these weights are loaded in the directory.
 3. Copy python files in the RaspberryPi folder into your Raspberry Pi home folder.
-4. To run the GUI for the robot, all you need to do is run the ``__init__.py`` file (the one that isn't in a package/folder).
+4. To run the GUI for the robot, all you need to do is run the ``__init__.py`` file (the one that isn't in a package/folder), and type in the IP Address of the robot.
 
 ## Running G.R.R.
 1. Run the control panel, and make sure your raspberry pi and laptop is connected to the same network.
@@ -19,7 +19,7 @@ Robot that autonomously creates maps, storing information that the robot recieve
   * RaspberryPi Camera
   * Motors
 * Ultrasonic Sensors
-* Compass
+* Gyroscope
 
 ## Dependencies
 * Python 3.x
