@@ -81,7 +81,7 @@ class GRR(BotFunctions, BotLogger):
 
     def store_data(self):
 
-        # get displacement
+        # get displacement using pythagorem theorem
         displacement = math.sqrt(self.x ** 2 + self.y ** 2)
 
         # add to data
@@ -98,6 +98,9 @@ class GRR(BotFunctions, BotLogger):
 
             # take a picture
             self.take_picture(time.time() - self.camera_time)
+            
+            # zip all data
+            self.export_data_zip()
 
             # reset timers
             self.camera_time = time.time()
@@ -210,7 +213,6 @@ class GRR(BotFunctions, BotLogger):
         while GPIO.input(self.DR) and GPIO.input(self.DL) and \
                 init_time + seconds > time.time():
             self.forward()
-
 
     # create bot, initializing values.
     def __init__(self, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s

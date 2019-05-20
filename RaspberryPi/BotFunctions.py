@@ -28,6 +28,7 @@ class BotFunctions:
     # take picture using camera via video port
     def take_img(self, file_loc):
         self.camera.capture(file_loc, use_video_port=True)
+        #self.camera.close()
 
     # if the user wants to change the speed.
     def stop_set_speed(self, cycle, frequency):
@@ -45,7 +46,7 @@ class BotFunctions:
                  frequency=200, rot_cycle=50):
 
         self.camera = PiCamera()
-        self.camera.resolution = (640, 480)
+        self.camera.resolution = (512, 512)
         
         self.rot_cycle = rot_cycle
         # set socket ids
