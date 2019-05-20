@@ -6,6 +6,8 @@ import wx
 import pandas as pd
 from PIL import Image
 import PIL
+# rom wxGUI.SettingsGUI import SettingsGUI
+
 
 class CPGUI:
 
@@ -13,6 +15,7 @@ class CPGUI:
         self.app = wx.App()
         self.frame = CPFrame(ip)
         self.app.MainLoop()
+
 
 class CPFrame(wx.Frame):
 
@@ -37,8 +40,9 @@ class CPPanel(wx.Panel):
         # initialize panel
         self.ip = ip
         wx.Panel.__init__(self, frame)
-
         self.curr_image_path = 'temp/angle_graph.png'
+
+        # self.sgui = SettingsGUI()
 
         # get default image
         image = wx.Image(self.curr_image_path, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
@@ -60,7 +64,7 @@ class CPPanel(wx.Panel):
         # create placeholder
         self.placeholder_asset('temp/placeholder.png')
 
-        #self.cpf = CPFunctions()
+        # self.cpf = CPFunctions()
 
     # display image based on file location
     def display_img(self, path, pic_path='temp/pic_gui.png'):
@@ -89,6 +93,7 @@ class CPPanel(wx.Panel):
         self.curr_image_path = 'temp/angle_graph.png'
         self.display_img(self.curr_image_path)
 
+    # display map
     def get_map(self, frame):
         self.curr_image_path = 'temp/picmap.png'
         self.display_img(self.curr_image_path)
@@ -97,8 +102,9 @@ class CPPanel(wx.Panel):
 
         # get last predicted image
         cl_df = pd.read_csv('temp/camera_log.csv')
-        display_img_path = 'temp/' + cl_df['img_name'].iloc[len(cl_df) - 1]
-        self.curr_image_path = self.resize_for_GUI(display_img_path, 'ycamera_gui.png')
+        display_img_path = 'temp/y_' + cl_df['img_name'].iloc[len(cl_df) - 1]
+        self.resize_for_GUI(display_img_path, 'ycamera_gui.png')
+        self.curr_image_path = 'ycamera_gui.png'
 
         # display image
         self.display_img('ycamera_gui.png')
@@ -122,16 +128,37 @@ class CPPanel(wx.Panel):
         # having this import statement above destroys the GUI
         import preprocessing
 
-        # extract data
-        preprocessing.fetch_assets(self.ip) # ip may not work, add check to see if it works?
+        try:
+            # extract data
+            preprocessing.fetch_assets(self.ip) # ip may not work, add check to see if it works?
 
-        # re-display images
-        self.display_img(self.curr_image_path)
+            # re-display images
+            self.display_img(self.curr_image_path)
+
+        except FileNotFoundError:
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Cannot retrieve robot data. Check the Robot\'s IP '
+                                                       'address or run the robot first.',
+                                         caption='Error')
+
+            error_msg.ShowModal()
+            error_msg.Destroy()
 
     # create black 640 x 480
     def placeholder_asset(self, path):
         img = Image.new('RGB', (640, 480), (0, 0, 0))
         img.save(path, "PNG")
+
+    # # open Settings GUI
+    # def get_settings(self, frame):
+    #
+    #     if self.sgui.instance.IsAnotherRunning():
+    #         return
+    #
+    #     # open new window
+    #     self.sgui = SettingsGUI()
+    #     self.sgui.Show()
 
     def _button_sizer(self):
 
@@ -141,6 +168,7 @@ class CPPanel(wx.Panel):
         btn_map = wx.Button(self, -1, "Map Graph")
         btn_camera = wx.Button(self, -1, "Camera Feed")
         btn_refresh = wx.Button(self, -1, "Refresh")
+        # btn_settings = wx.Button(self, -1, "Settings")
 
         # assign functions to them
         btn_displacement.Bind(wx.EVT_BUTTON, self.get_displacement_graph)
@@ -148,12 +176,13 @@ class CPPanel(wx.Panel):
         btn_map.Bind(wx.EVT_BUTTON, self.get_map)
         btn_camera.Bind(wx.EVT_BUTTON, self.get_camera_feed)
         btn_refresh.Bind(wx.EVT_BUTTON, self.update_assets)
+        # btn_settings.Bind(wx.EVT_BUTTON, self.get_settings)
 
         # order buttons
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         for btn in [btn_displacement, btn_angle, btn_map, btn_camera, btn_refresh]:
             button_sizer.Add(btn)
-            button_sizer.Add((20, 20), proportion=1)
+            button_sizer.Add((5, 5), proportion=1)
 
         return button_sizer
 
