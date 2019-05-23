@@ -97,7 +97,7 @@ class GRR(BotFunctions, BotLogger):
             self.stop()
 
             # take a picture
-            self.take_picture(time.time() - self.camera_time)
+            self.take_picture(time.time() - self.init_time)
             
             # zip all data
             self.export_data_zip()
