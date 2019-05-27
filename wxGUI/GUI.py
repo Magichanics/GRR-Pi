@@ -43,19 +43,21 @@ class CPPanel(wx.Panel):
 
     def __init__(self, frame):
 
+        # create placeholder
+        self.placeholder_asset('temp/placeholder.png')
+
         # initialize panel
         self.ip = ''
         wx.Panel.__init__(self, frame)
-        self.curr_image_path = 'temp/angle_graph.png'
 
         # create settings GUI
         self.sgui = SettingsGUI()
         self.sgui.Hide()
 
-        # get default image
-        #self.display_img(self.curr_image_path)
-        image = wx.Image(self.curr_image_path, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-        self.image_display = wx.StaticBitmap(self, wx.ID_ANY, image, wx.Point(0,0))
+        # get default img
+        self.display_img('temp/placeholder.png')
+        # img = wx.Image(self.curr_img_path, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+        # self.img_display = wx.StaticBitmap(self, wx.ID_ANY, img, wx.Point(0,0))
 
         # create row of buttons
         button_sizer = self._button_sizer()
@@ -63,11 +65,11 @@ class CPPanel(wx.Panel):
         # add components to vertical box
         self.vbox = wx.BoxSizer(wx.VERTICAL)
 
-        # create horizontal box for image, then properties + panels
+        # create horizontal box for img, then properties + panels
         self.img_row = wx.BoxSizer(wx.HORIZONTAL)
 
         # do placements in horizontal box
-        self.img_row.Add(self.image_display)
+        self.img_row.Add(self.img_display)
         self.img_row.Add((5, 5), proportion=1)
         self.img_row.Add(self._img_panel())
 
@@ -77,9 +79,6 @@ class CPPanel(wx.Panel):
 
         self.SetSizer(self.vbox)
         self.Fit()
-
-        # create placeholder
-        self.placeholder_asset('temp/placeholder.png')
 
         # read dataframe
         try:
@@ -99,7 +98,7 @@ class CPPanel(wx.Panel):
     def frame_on_close(self, event):
         self.DestroyChildren()
 
-    # display image based on file location
+    # display img based on file location
     def display_img(self, path, pic_path='temp/pic_gui.png', is_camera=False):
 
         # for checking whether it is on tab or not
@@ -107,25 +106,30 @@ class CPPanel(wx.Panel):
             self.on_camera_tab = True
         else:
 
-            # clear previous information
-            self.textbox.SetValue("")
+            # clear previous information if possible
+            try:
+                self.textbox.SetValue("")
+            except AttributeError:
+                pass
             self.on_camera_tab = False
 
         try:
 
-            # resize image
+            # resize img
             self.resize_for_gui(path, pic_path)
 
-            # replace image
-            self.image_display.Destroy()
+            # replace img
+            try:
+                self.img_display.Destroy()
+            except:
+                pass
             img = wx.Image(pic_path, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-            self.image_display = wx.StaticBitmap(self, wx.ID_ANY, img)
+            self.img_display = wx.StaticBitmap(self, wx.ID_ANY, img)
 
-        # display placeholder (black image)
+        # display placeholder (black img)
         except FileNotFoundError:
-            self.curr_image_path = 'temp/placeholder.png'
             img = wx.Image('temp/placeholder.png', wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-            self.image_display = wx.StaticBitmap(self, wx.ID_ANY, img)
+            self.img_display = wx.StaticBitmap(self, wx.ID_ANY, img)
 
     def _img_panel(self):
 
@@ -149,7 +153,7 @@ class CPPanel(wx.Panel):
         # create textbox
         self.textbox = wx.TextCtrl(self, size=(200, 400), style=wx.TE_MULTILINE | wx.TE_READONLY)
 
-        # Display stats boxes of images
+        # Display stats boxes of imgs
         img_vbox.AddSpacer(15)
         img_vbox.Add(img_controls)
         img_vbox.AddSpacer(30)
@@ -167,17 +171,19 @@ class CPPanel(wx.Panel):
         # get filename
         display_img_path = 'temp/y_' + self.cl_df['img_name'].iloc[self.img_index]
 
-        # get image path
+        # get img path
         self.resize_for_gui(display_img_path, 'temp/y_camera_gui.png')
-        self.curr_image_path = 'temp/y_camera_gui.png'
 
         # display img
-        self.display_img(self.curr_image_path,is_camera=True)
+        self.display_img('temp/y_camera_gui.png',is_camera=True)
 
     def display_metadata(self):
 
         # clear previous information
-        self.textbox.SetValue("")
+        try:
+            self.textbox.SetValue("")
+        except AttributeError:
+            return
 
         # put information into \n'd string
         output = ''
@@ -213,18 +219,15 @@ class CPPanel(wx.Panel):
 
     # display displacement graph
     def get_displacement_graph(self, frame):
-        self.curr_image_path = 'temp/displacement_graph.png'
-        self.display_img(self.curr_image_path)
+        self.display_img('temp/displacement_graph.png')
 
     # display angle graph
     def get_angle_graph(self, frame):
-        self.curr_image_path = 'temp/angle_graph.png'
-        self.display_img(self.curr_image_path)
+        self.display_img('temp/angle_graph.png')
 
     # display map
     def get_map(self, frame):
-        self.curr_image_path = 'temp/picmap.png'
-        self.display_img(self.curr_image_path)
+        self.display_img('temp/picmap.png')
 
     def get_camera_feed(self, frame):
 
@@ -238,7 +241,7 @@ class CPPanel(wx.Panel):
             self.camera_img_update()
             self.display_metadata()
 
-            # display image
+            # display img
             self.display_img('temp/y_camera_gui.png', is_camera=True)
 
         except IndexError:
@@ -253,14 +256,14 @@ class CPPanel(wx.Panel):
     # from CPFunctions
     def resize_for_gui(self, open_path, save_path, size=480):
 
-        # read image
+        # read img
         img = Image.open(open_path).convert("RGBA")
 
-        # resize image using ratio
+        # resize img using ratio
         size_ratio = size / img.size[1]
         img = img.resize((int(img.size[0] * size_ratio), int(img.size[1] * size_ratio)), PIL.Image.ANTIALIAS)
 
-        # save image
+        # save img
         img.save(save_path)
 
     # re-display whatever is on the screen
@@ -288,8 +291,8 @@ class CPPanel(wx.Panel):
             # extract data
             preprocessing.fetch_assets(self.ip)  # ip may not work, add check to see if it works?
 
-            # re-display images
-            self.display_img(self.curr_image_path)
+            # re-display imgs
+            self.display_img('temp/placeholder.png')
 
             # update camera dataframe
             self.cl_df = pd.read_csv('temp/predictions.csv')
