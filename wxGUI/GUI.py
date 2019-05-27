@@ -7,11 +7,16 @@ import pandas as pd
 from PIL import Image
 import PIL
 from wxGUI.SettingsGUI import SettingsGUI
-
+import os
 
 class CPGUI:
 
     def __init__(self):
+
+        # check if there's a temp folder
+        if not os.path.exists('temp'):
+            os.makedirs('temp')
+
         self.app = wx.App()
         self.frame = CPFrame()
         self.app.MainLoop()
