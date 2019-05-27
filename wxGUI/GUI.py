@@ -44,7 +44,7 @@ class CPPanel(wx.Panel):
     def __init__(self, frame):
 
         # initialize panel
-        self.ip = '192.168.2.101'
+        self.ip = ''
         wx.Panel.__init__(self, frame)
         self.curr_image_path = 'temp/angle_graph.png'
 
@@ -266,16 +266,27 @@ class CPPanel(wx.Panel):
     # re-display whatever is on the screen
     def update_assets(self, frame):
 
+        # check if empty
+        if self.sgui.panel.ip_box.GetLineText(0) == '':
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Please enter the Robot\'s IP Address in Settings.',
+                                         caption='Error')
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
+            return
+
         # get ip address
-        ip = self.sgui.panel.ip_box.GetLineText(0)
-        print(ip)
+        self.ip = self.sgui.panel.ip_box.GetLineText(0)
+        print(self.ip)
 
         # having this import statement above destroys the GUI
         import preprocessing
 
         try:
             # extract data
-            preprocessing.fetch_assets(ip)  # ip may not work, add check to see if it works?
+            preprocessing.fetch_assets(self.ip)  # ip may not work, add check to see if it works?
 
             # re-display images
             self.display_img(self.curr_image_path)
