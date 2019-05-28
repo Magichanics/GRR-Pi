@@ -2,7 +2,7 @@
 Author: Jan Garong
 May 5th, 2019
 '''
-from preprocessing.Mapping import Mapping
+from mappingtools.Mapping import Mapping
 from preprocessing.VisualizationFunctions import VisualizationFunctions
 import pandas as pd
 from keras.preprocessing import image
@@ -11,7 +11,6 @@ import os
 import zipfile
 import cv2
 from PIL import Image, ImageDraw
-import PIL
 import shutil
 
 

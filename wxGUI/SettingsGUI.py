@@ -4,6 +4,9 @@ Date: May 20th, 2019
 '''
 
 import wx
+import os
+import shutil
+from PIL import Image
 
 
 class SettingsGUI(wx.Frame):
@@ -71,14 +74,41 @@ class SettingsPanel(wx.Panel):
 
         # create buttons
         btn_manual = wx.Button(self, -1, "User Manual")
-        # btn_save = wx.Button(self, -1, "Save Settings")
+        btn_credits = wx.Button(self, -1, "Credits")
+        btn_clear = wx.Button(self, -1, "Clear")
+
+        btn_clear.Bind(wx.EVT_BUTTON, self.clear_files)
 
         # add to panel
         buttons_row = wx.BoxSizer(wx.HORIZONTAL)
-        buttons_row.Add((200, 200), proportion=1)
+        buttons_row.Add((50, 50), proportion=1)
         buttons_row.Add(btn_manual)
-        # buttons_row.Add((50, 50), proportion=1)
-        # buttons_row.Add(btn_save)
+        buttons_row.Add((50, 50), proportion=1)
+        buttons_row.Add(btn_credits)
+        buttons_row.Add((50, 50), proportion=1)
+        buttons_row.Add(btn_clear)
 
         return buttons_row
+
+    # create new placeholder
+    def placeholder_asset(self, path):
+        img = Image.new('RGB', (640, 480), (0, 0, 0))
+        img.save(path, "PNG")
+
+    def clear_files(self, frame, path='temp/'):
+
+        # unlink files in folder
+        for file in os.listdir(path):
+            file_path = os.path.join(path, file)  # get file path
+
+            # remove file
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+
+            # remove directory
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+
+        # create placeholder
+        self.placeholder_asset('temp/placeholder.png')
 

@@ -44,6 +44,7 @@ class CPFrame(wx.Frame):
         self.Destroy()
         print('Terminating GUI')
 
+
 class CPPanel(wx.Panel):
 
     def __init__(self, frame):
