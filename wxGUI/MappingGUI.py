@@ -6,6 +6,7 @@ from mappingtools.Mapping import Mapping
 from mappingtools import PathFinding as pf
 import wx
 
+
 class MappingGUI(wx.Frame):
 
     def __init__(self):
@@ -16,7 +17,7 @@ class MappingGUI(wx.Frame):
 
         # create layout
         self.panel = SettingsPanel(self)
-        self.SetSize(0, 0, 480, 280)
+        self.SetSize(0, 0, 360, 160)
         self.Centre()
         self.Layout()
         self.Show()
@@ -77,7 +78,7 @@ class SettingsPanel(wx.Panel):
         # add components to box
         shortpath_col = wx.BoxSizer(wx.VERTICAL)
         shortpath_col.Add(startpath_row)
-        self.vbox.AddSpacer(20)
+        shortpath_col.AddSpacer(20)
         shortpath_col.Add(endpath_row)
 
         return shortpath_col
@@ -99,28 +100,42 @@ class SettingsPanel(wx.Panel):
     # p1 and p2 are tuple coordinates (x, y)
     def plot_graph(self, frame):
 
-        def parse_coords(str_item):
-            str_lst = str_item.replace('(', '').replace(')', '').replace(',', '').split(' ')
-            return int(str_lst[0]), int(str_lst[1])
-
         try:
 
-            # parse to integer
-            p1 = parse_coords(self.start_loc.GetLineText(0))
-            p2 = parse_coords(self.end_loc.GetLineText(0))
+            def parse_coords(str_item):
+                str_lst = str_item.replace('(', '').replace(')', '').replace(',', '').split(' ')
+                return int(str_lst[0]), int(str_lst[1])
 
-            print(p1, p2)
+            # parse to integer
+            self.p1 = parse_coords(self.start_loc.GetLineText(0))
+            self.p2 = parse_coords(self.end_loc.GetLineText(0))
+
+            # check if they are the same
+            if self.p1 == self.p2:
+                # show error message
+                error_msg = wx.MessageDialog(None, message='Do not write the same coordinate.',
+                                             caption='Error')
+
+                error_msg.ShowModal()
+                error_msg.Destroy()
+                return
 
             # convert coordinates to indices.
             mp = Mapping()
             mp.read_mppy('temp/map.txt')
-            pi, pj = mp.get_index(p1)
-            li, lj = mp.get_index(p2)
+            pi, pj = mp.get_index(self.p1)
+            li, lj = mp.get_index(self.p2)
 
             # convert coordinates to indices (reversed coords)
             pf.main((pi, pj), (li, lj), save_path='temp/map_path.png')
 
-            # set image
+            # show success message
+            error_msg = wx.MessageDialog(None, message='Created a new path! See Mapping Tab.',
+                                         caption='Success')
+
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
 
         # no map
         except FileNotFoundError:
@@ -144,7 +159,16 @@ class SettingsPanel(wx.Panel):
             error_msg.Destroy()
 
         # incorrect format
-        except IndexError or ValueError:
+        except ValueError:
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Please format coordinates like this: (x, y)',
+                                         caption='Error')
+
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
+        except IndexError:
 
             # show error message
             error_msg = wx.MessageDialog(None, message='Please format coordinates like this: (x, y)',

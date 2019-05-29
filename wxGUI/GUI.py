@@ -42,10 +42,19 @@ class CPFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.frame_on_close)
 
     def frame_on_close(self, event):
+
+        print('Terminating GUI...')
+
+        # remove frames
         self.panel.sgui.Destroy()
         self.panel.mgui.Destroy()
         self.Destroy()
-        print('Terminating GUI')
+
+        # remove temporary path files
+        try:
+            os.remove('temp/map_path.png')
+        except FileNotFoundError:
+            pass
 
 
 class CPPanel(wx.Panel):
@@ -102,7 +111,9 @@ class CPPanel(wx.Panel):
         # set properties
         self.img_index = len(self.cl_df) - 1
         self.on_camera_tab = False
+        self.on_map_tab = False
 
+        # close all
         self.Bind(wx.EVT_CLOSE, self.frame_on_close)
 
     # fix please
@@ -110,18 +121,25 @@ class CPPanel(wx.Panel):
         self.DestroyChildren()
 
     # display img based on file location
-    def display_img(self, path, pic_path='temp/pic_gui.png', is_camera=False):
+    def display_img(self, path, pic_path='temp/pic_gui.png', special_tab=''):
 
         # for checking whether it is on tab or not
-        if is_camera:
+        if special_tab == 'camera':
             self.on_camera_tab = True
-        else:
+            self.on_map_tab = False
 
-            # clear previous information if possible
+        # for checking whether it is on the mapping tab or not
+        elif special_tab == 'map':
+            self.on_map_tab = True
+            self.on_camera_tab = False
+
+        # clear previous information if possible
+        else:
             try:
                 self.textbox.SetValue("")
             except AttributeError:
                 pass
+            self.on_map_tab = False
             self.on_camera_tab = False
 
         try:
@@ -186,7 +204,7 @@ class CPPanel(wx.Panel):
         self.resize_for_gui(display_img_path, 'temp/y_camera_gui.png')
 
         # display img
-        self.display_img('temp/y_camera_gui.png',is_camera=True)
+        self.display_img('temp/y_camera_gui.png', special_tab='camera')
 
     def display_metadata(self):
 
@@ -220,6 +238,14 @@ class CPPanel(wx.Panel):
             self.camera_img_update()
             self.display_metadata()
 
+        # check if on map tab, then change to regular map
+        elif self.on_map_tab:
+            self.display_img('temp/picmap.png', special_tab='map')
+            self.textbox.SetValue("")
+            self.textbox.AppendText("Original Map\n\nGreen: Empty\nWhite: Unknown\nRed: Wall\nYellow: Origin"
+                                    "\nBlack: Robot's current location.")
+
+
     def scroll_right(self, frame):
 
         # check if it reaches the end of the album + if it's on the camera tab
@@ -227,6 +253,15 @@ class CPPanel(wx.Panel):
             self.img_index += 1
             self.camera_img_update()
             self.display_metadata()
+
+        # check if on map tab, then change to map with path
+        elif self.on_map_tab and os.path.isfile('temp/map_path.png'):
+            self.display_img('temp/map_path.png', special_tab='map')
+            self.textbox.SetValue("")
+            self.textbox.AppendText("Original Map (with Path)\nStarting Point: " + str(self.mgui.panel.p1) +
+                                    "\nEnd Point: " + str(self.mgui.panel.p2) +
+                                    "\n\nGreen: Empty\nWhite: Unknown\nRed: Wall\nYellow: Origin\nOrange: "
+                                    "Path\nBlack: Robot's current location.")
 
     # display displacement graph
     def get_displacement_graph(self, frame):
@@ -238,7 +273,11 @@ class CPPanel(wx.Panel):
 
     # display map
     def get_map(self, frame):
-        self.display_img('temp/picmap.png')
+        # display img
+        self.display_img('temp/picmap.png', special_tab='map')
+        self.textbox.SetValue("")
+        self.textbox.AppendText("Original Map\n\nGreen: Empty\nWhite: Unknown\nRed: Wall\nYellow: Origin"
+                                    "\nBlack: Robot's current location.")
 
     def get_camera_feed(self, frame):
 
@@ -253,7 +292,7 @@ class CPPanel(wx.Panel):
             self.display_metadata()
 
             # display img
-            self.display_img('temp/y_camera_gui.png', is_camera=True)
+            self.display_img('temp/y_camera_gui.png', special_tab='camera')
 
         except IndexError:
 
@@ -338,6 +377,9 @@ class CPPanel(wx.Panel):
         if self.mgui.instance.IsAnotherRunning():
             self.mgui.Raise()
             return
+
+        # reset page
+        self.display_img('temp/placeholder.png')
 
         # open new window
         self.mgui.Show()
