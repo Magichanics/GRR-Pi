@@ -7,7 +7,9 @@ import pandas as pd
 from PIL import Image
 import PIL
 from wxGUI.SettingsGUI import SettingsGUI
+from wxGUI.MappingGUI import MappingGUI
 import os
+
 
 class CPGUI:
 
@@ -41,6 +43,7 @@ class CPFrame(wx.Frame):
 
     def frame_on_close(self, event):
         self.panel.sgui.Destroy()
+        self.panel.mgui.Destroy()
         self.Destroy()
         print('Terminating GUI')
 
@@ -58,7 +61,9 @@ class CPPanel(wx.Panel):
 
         # create settings GUI
         self.sgui = SettingsGUI()
+        self.mgui = MappingGUI()
         self.sgui.Hide()
+        self.mgui.Hide()
 
         # get default img
         self.display_img('temp/placeholder.png')
@@ -322,11 +327,20 @@ class CPPanel(wx.Panel):
     def get_settings(self, frame):
 
         if self.sgui.instance.IsAnotherRunning():
+            self.sgui.Raise()
             return
 
         # open new window
-        #self.sgui = SettingsGUI()
         self.sgui.Show()
+
+    def get_msettings(self, frame):
+
+        if self.mgui.instance.IsAnotherRunning():
+            self.mgui.Raise()
+            return
+
+        # open new window
+        self.mgui.Show()
 
     def _button_sizer(self):
 
@@ -337,6 +351,7 @@ class CPPanel(wx.Panel):
         btn_camera = wx.Button(self, -1, "Camera Feed")
         btn_refresh = wx.Button(self, -1, "Refresh")
         btn_settings = wx.Button(self, -1, "Settings")
+        btn_msettings = wx.Button(self, -1, "Map Settings")
 
         # assign functions to them
         btn_displacement.Bind(wx.EVT_BUTTON, self.get_displacement_graph)
@@ -345,10 +360,12 @@ class CPPanel(wx.Panel):
         btn_camera.Bind(wx.EVT_BUTTON, self.get_camera_feed)
         btn_refresh.Bind(wx.EVT_BUTTON, self.update_assets)
         btn_settings.Bind(wx.EVT_BUTTON, self.get_settings)
+        btn_msettings.Bind(wx.EVT_BUTTON, self.get_msettings)
 
         # order buttons
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        for btn in [btn_displacement, btn_angle, btn_map, btn_camera, btn_refresh, btn_settings]:
+        for btn in [btn_displacement, btn_angle, btn_map, btn_camera, btn_refresh,
+                    btn_settings, btn_msettings]:
             button_sizer.Add(btn)
             button_sizer.Add((30, 30), proportion=1)
 
