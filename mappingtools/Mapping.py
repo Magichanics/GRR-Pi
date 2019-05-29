@@ -7,11 +7,15 @@ import math
 from PIL import Image
 from PIL import ImageDraw
 
+
 class Mapping:
 
     # gets coordinate value
     def get_coords(self, x, y):
         return self.grid[-y + self.origin_y][self.origin_x + x]
+
+    def get_index(self, p):
+        return -p[1] + self.origin_y, self.origin_x + p[0]
 
     def extend_grid(self, side, extend_by):
 
@@ -39,14 +43,13 @@ class Mapping:
                     self.grid[i].insert(0, 'w')
             self.origin_x += extend_by
 
-
     def check_element(self, x, y):
 
         try:
             return self.grid[self.origin_y - y][x + self.origin_x]
 
         # if out of bounds
-        except:
+        except IndexError:
             return 'w'
 
     # x and y are pure cartesian grid points
@@ -99,6 +102,7 @@ class Mapping:
 
             # get first line
             line = f.readline()
+            y = 0
             while line != '':
 
                 # clean string from \ns
@@ -109,10 +113,16 @@ class Mapping:
                 for i in range(len(line)):
                     row.append(line[i])
 
+                    # look for origin
+                    if line[i] == 'y':
+                        self.origin_x = i
+                        self.origin_y = y
+
                 temp_grid.append(row)
 
                 # get next line
                 line = f.readline()
+                y += 1
 
         f.close()
 

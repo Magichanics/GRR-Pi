@@ -126,7 +126,7 @@ def astar(maze, start, end, allow_diagonal_movement = True):
             open_list.append(child)
 
 
-def main(start, end):
+def main(start, end, save_path='path.png'):
     tempMaze = Mapping()
     tempMaze.read_mppy("temp/map.txt")
 
@@ -140,12 +140,12 @@ def main(start, end):
                 maze[y][x] = 1
 
     path = astar(maze, start, end)
-    print(path)
+    #print(path)
 
     for tuple in range(len(path)):
         tempMaze.grid[path[tuple][0]][path[tuple][1]] = "o"
 
-    tempMaze.to_img('path.png')
+    tempMaze.to_img(save_path)
 
 
 # if __name__ == '__main__':
