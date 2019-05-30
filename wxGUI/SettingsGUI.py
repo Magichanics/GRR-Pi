@@ -6,6 +6,7 @@ Date: May 20th, 2019
 import wx
 import os
 import shutil
+from wxGUI.CreditsGUI import CreditsGUI
 from PIL import Image
 
 
@@ -29,6 +30,7 @@ class SettingsGUI(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.frame_on_close)
 
     def frame_on_close(self, event):
+        self.panel.cgui.Hide()
         self.Hide()
 
 
@@ -37,6 +39,9 @@ class SettingsPanel(wx.Panel):
     def __init__(self, frame):
 
         wx.Panel.__init__(self, frame)
+
+        # create credits
+        self.cgui = CreditsGUI()
 
         # setup vertical box
         self.vbox = wx.BoxSizer(wx.VERTICAL)
@@ -54,6 +59,14 @@ class SettingsPanel(wx.Panel):
         # size boxes to fix
         self.SetSizer(self.vbox)
         self.Fit()
+
+    def get_credits(self, frame):
+
+        # place at front
+        self.cgui.Raise()
+
+        # open new window
+        self.cgui.Show()
 
     def _ip_sizer(self):
 
@@ -78,6 +91,7 @@ class SettingsPanel(wx.Panel):
         btn_clear = wx.Button(self, -1, "Clear")
 
         btn_clear.Bind(wx.EVT_BUTTON, self.clear_files)
+        btn_credits.Bind(wx.EVT_BUTTON, self.get_credits)
 
         # add to panel
         buttons_row = wx.BoxSizer(wx.HORIZONTAL)

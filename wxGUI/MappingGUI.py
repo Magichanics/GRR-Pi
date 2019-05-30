@@ -2,6 +2,7 @@
 Author: Jan Garong
 Thursday May 28th, 2019
 '''
+
 from mappingtools.Mapping import Mapping
 from mappingtools import PathFinding as pf
 import wx
@@ -100,6 +101,15 @@ class SettingsPanel(wx.Panel):
     # p1 and p2 are tuple coordinates (x, y)
     def plot_graph(self, frame):
 
+        def format_error():
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Please format coordinates like this: (x, y)',
+                                         caption='Error')
+
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
         try:
 
             def parse_coords(str_item):
@@ -160,20 +170,8 @@ class SettingsPanel(wx.Panel):
 
         # incorrect format
         except ValueError:
-
-            # show error message
-            error_msg = wx.MessageDialog(None, message='Please format coordinates like this: (x, y)',
-                                         caption='Error')
-
-            error_msg.ShowModal()
-            error_msg.Destroy()
+            format_error()
 
         except IndexError:
-
-            # show error message
-            error_msg = wx.MessageDialog(None, message='Please format coordinates like this: (x, y)',
-                                         caption='Error')
-
-            error_msg.ShowModal()
-            error_msg.Destroy()
+            format_error()
 

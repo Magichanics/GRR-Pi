@@ -8,6 +8,7 @@ from PIL import Image
 import PIL
 from wxGUI.SettingsGUI import SettingsGUI
 from wxGUI.MappingGUI import MappingGUI
+from wxGUI.CreditsGUI import CreditsGUI
 import os
 
 
@@ -46,6 +47,7 @@ class CPFrame(wx.Frame):
         print('Terminating GUI...')
 
         # remove frames
+        self.panel.sgui.panel.cgui.Destroy()
         self.panel.sgui.Destroy()
         self.panel.mgui.Destroy()
         self.Destroy()
@@ -365,18 +367,16 @@ class CPPanel(wx.Panel):
     # open Settings GUI
     def get_settings(self, frame):
 
-        if self.sgui.instance.IsAnotherRunning():
-            self.sgui.Raise()
-            return
+        # place at front
+        self.sgui.Raise()
 
         # open new window
         self.sgui.Show()
 
     def get_msettings(self, frame):
 
-        if self.mgui.instance.IsAnotherRunning():
-            self.mgui.Raise()
-            return
+        # place at front
+        self.mgui.Raise()
 
         # reset page
         self.display_img('temp/placeholder.png')
@@ -409,7 +409,7 @@ class CPPanel(wx.Panel):
         for btn in [btn_displacement, btn_angle, btn_map, btn_camera, btn_refresh,
                     btn_settings, btn_msettings]:
             button_sizer.Add(btn)
-            button_sizer.Add((30, 30), proportion=1)
+            button_sizer.Add((10, 10), proportion=1)
 
         return button_sizer
 
