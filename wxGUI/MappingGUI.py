@@ -18,7 +18,7 @@ class MappingGUI(wx.Frame):
 
         # create layout
         self.panel = SettingsPanel(self)
-        self.SetSize(0, 0, 360, 160)
+        self.SetSize(0, 0, 340, 180)
         self.Centre()
         self.Layout()
         self.Show()

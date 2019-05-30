@@ -6,6 +6,7 @@ Date: May 20th, 2019
 import wx
 import os
 import shutil
+import webbrowser
 from wxGUI.CreditsGUI import CreditsGUI
 from PIL import Image
 
@@ -83,23 +84,28 @@ class SettingsPanel(wx.Panel):
 
         return ip_row
 
+    # open website
+    def go_to_website(self, frame):
+        webbrowser.open('https://github.com/jangarong/GRR-Pi')
+
     def _button_sizer(self):
 
         # create buttons
-        btn_manual = wx.Button(self, -1, "User Manual")
+        btn_manual = wx.Button(self, -1, "Repository\'s Website")
         btn_credits = wx.Button(self, -1, "Credits")
         btn_clear = wx.Button(self, -1, "Clear")
 
         btn_clear.Bind(wx.EVT_BUTTON, self.clear_files)
         btn_credits.Bind(wx.EVT_BUTTON, self.get_credits)
+        btn_manual.Bind(wx.EVT_BUTTON, self.go_to_website)
 
         # add to panel
         buttons_row = wx.BoxSizer(wx.HORIZONTAL)
-        buttons_row.Add((50, 50), proportion=1)
+        buttons_row.Add((30, 30), proportion=1)
         buttons_row.Add(btn_manual)
-        buttons_row.Add((50, 50), proportion=1)
+        buttons_row.Add((30, 30), proportion=1)
         buttons_row.Add(btn_credits)
-        buttons_row.Add((50, 50), proportion=1)
+        buttons_row.Add((30, 30), proportion=1)
         buttons_row.Add(btn_clear)
 
         return buttons_row

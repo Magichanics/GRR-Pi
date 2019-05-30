@@ -247,7 +247,6 @@ class CPPanel(wx.Panel):
             self.textbox.AppendText("Original Map\n\nGreen: Empty\nWhite: Unknown\nRed: Wall\nYellow: Origin"
                                     "\nBlack: Robot's current location.")
 
-
     def scroll_right(self, frame):
 
         # check if it reaches the end of the album + if it's on the camera tab
