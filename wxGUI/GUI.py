@@ -8,7 +8,6 @@ from PIL import Image
 import PIL
 from wxGUI.SettingsGUI import SettingsGUI
 from wxGUI.MappingGUI import MappingGUI
-from wxGUI.CreditsGUI import CreditsGUI
 import os
 
 
@@ -39,6 +38,9 @@ class CPFrame(wx.Frame):
         self.Centre()
         self.Layout()
         self.Show()
+
+        # fixes layout to the corner.
+        self.panel.display_img('temp/placeholder.png')
 
         self.Bind(wx.EVT_CLOSE, self.frame_on_close)
 
