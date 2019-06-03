@@ -286,6 +286,9 @@ class CPPanel(wx.Panel):
 
         try:
 
+            # attempt to read data
+            self.cl_df = pd.read_csv('temp/predictions.csv')
+
             # set properties
             self.img_index = len(self.cl_df) - 1
             self.on_camera_tab = True
@@ -302,6 +305,14 @@ class CPPanel(wx.Panel):
             # show error message
             error_msg = wx.MessageDialog(None, message='Robot has not taken any pictures. Please let it'
                                                        ' run for a few more seconds.',
+                                         caption='Error')
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
+        except FileNotFoundError:
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Predictions dataframe does not exist.',
                                          caption='Error')
             error_msg.ShowModal()
             error_msg.Destroy()
