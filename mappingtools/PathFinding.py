@@ -72,7 +72,9 @@ def astar(maze, start, end, allow_diagonal_movement = True):
             # If we hit this point return the path such as it is
             # It will not contain the destination
             warn("Giving up on pathfinding due to too many iterations.")
-            return return_path(current_node)
+            Exception("Failed to find path.")
+            #return return_path(current_node)
+            return
 
         # Pop current off open list, add to closed list
         open_list.pop(current_index)
