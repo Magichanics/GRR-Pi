@@ -1,10 +1,16 @@
-from matplotlib import pyplot as plt
+'''
+Author: Jan Garong
+'''
+
 import pandas as pd
+import matplotlib
 
 
 class VisualizationFunctions:
 
     def displacement_graph(self, df, path='temp/displacement_graph.png'):
+
+        from matplotlib import pyplot as plt
 
         # plot x and y
         plt.plot(df['seconds'], df['displacement'])
@@ -19,6 +25,8 @@ class VisualizationFunctions:
 
     def angle_graph(self, df, path='temp/angle_graph.png'):
 
+        from matplotlib import pyplot as plt
+
         # plot x and y
         plt.plot(df['seconds'], df['angle'])
 
@@ -30,11 +38,13 @@ class VisualizationFunctions:
         plt.savefig(path)
         plt.close()
 
-    def graph_items(self, debug_path='temp/debug_log.csv',
-                    camera_path='temp/camera_log.csv'):
+    def graph_items(self, debug_path='temp/debug_log.csv'):
         df = pd.read_csv(debug_path)
         self.displacement_graph(df)
         self.angle_graph(df)
 
     def __init__(self):
-        pass
+        matplotlib.use("TkAgg")  # prevents errors
+
+
+VisualizationFunctions()

@@ -4,9 +4,9 @@ May 5th, 2019
 '''
 from mappingtools.Mapping import Mapping
 from preprocessing.VisualizationFunctions import VisualizationFunctions
+from preprocessing.SSDKeras import SDDNeuralNetwork512
 import pandas as pd
 from keras.preprocessing import image
-from preprocessing.SSDKeras import SDDNeuralNetwork512
 import os
 import zipfile
 import cv2
@@ -118,6 +118,20 @@ class CPFunctions(VisualizationFunctions):
 
         # export to png
         map_obj.to_img(path+'picmap.png')
+
+    def fetch_data(self, ip):
+
+        # extract data
+        print('loading robot files...')
+        self.collect_data(ip)
+
+        # save files
+        print('processing data...')
+        self.predict_camera_data()
+        print('creating maps...')
+        self.get_map()
+        print('creating graphs...')
+        self.graph_items()
 
     # initialize neural network
     def __init__(self):
