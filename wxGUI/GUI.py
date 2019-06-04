@@ -9,6 +9,7 @@ import PIL
 from wxGUI.SettingsGUI import SettingsGUI
 from wxGUI.MappingGUI import MappingGUI
 import os
+from preprocessing.CPFunctions import CPFunctions
 
 
 class CPGUI:
@@ -119,6 +120,9 @@ class CPPanel(wx.Panel):
 
         # close all
         self.Bind(wx.EVT_CLOSE, self.frame_on_close)
+
+        # load preprocessing libraries
+        self.cpf = CPFunctions()
 
     # fix please
     def frame_on_close(self, event):
@@ -349,11 +353,11 @@ class CPPanel(wx.Panel):
         print(self.ip)
 
         # having this import statement above destroys the GUI
-        import preprocessing
 
         try:
+
             # extract data
-            preprocessing.fetch_assets(self.ip)  # ip may not work, add check to see if it works?
+            self.cpf.fetch_data(str(self.ip))
 
             # re-display imgs
             self.display_img('temp/placeholder.png')

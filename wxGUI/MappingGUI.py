@@ -112,6 +112,9 @@ class SettingsPanel(wx.Panel):
 
         try:
 
+            # remove existing
+
+
             def parse_coords(str_item):
                 str_lst = str_item.replace('(', '').replace(')', '').replace(',', '').split(' ')
                 return int(str_lst[0]), int(str_lst[1])
@@ -140,11 +143,11 @@ class SettingsPanel(wx.Panel):
             pf.main((pi, pj), (li, lj), save_path='temp/map_path.png')
 
             # show success message
-            error_msg = wx.MessageDialog(None, message='Created a new path! See Mapping Tab.',
+            success_msg = wx.MessageDialog(None, message='Created a new path! See Mapping Tab.',
                                          caption='Success')
 
-            error_msg.ShowModal()
-            error_msg.Destroy()
+            success_msg.ShowModal()
+            success_msg.Destroy()
 
 
         # no map
@@ -157,21 +160,21 @@ class SettingsPanel(wx.Panel):
             error_msg.ShowModal()
             error_msg.Destroy()
 
-        # out of bounds
-        except TypeError:
-
-            # show error message
-            error_msg = wx.MessageDialog(None, message='Make sure coordinates are on '
-                                                       'green/yellow/black squares.',
-                                         caption='Error')
-
-            error_msg.ShowModal()
-            error_msg.Destroy()
-
         # incorrect format
         except ValueError:
             format_error()
 
         except IndexError:
             format_error()
+
+        # out of bounds
+        except:
+
+            # show error message
+            error_msg = wx.MessageDialog(None, message='Cannot make path.',
+                                         caption='Error')
+
+            error_msg.ShowModal()
+            error_msg.Destroy()
+
 
