@@ -43,6 +43,7 @@ class SettingsPanel(wx.Panel):
 
         # create credits
         self.cgui = CreditsGUI()
+        self.cgui.Hide()
 
         # setup vertical box
         self.vbox = wx.BoxSizer(wx.VERTICAL)
