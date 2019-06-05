@@ -119,7 +119,17 @@ class CPFunctions(VisualizationFunctions):
         # export to png
         map_obj.to_img(path+'picmap.png')
 
-    def fetch_data(self, ip):
+    # determines whether the dataframe is the same one or not.
+    def check_dfs(self, curr_cl_df):
+
+        # get camera data
+        cl_df = pd.read_csv('temp/camera_log.csv')
+
+        # check if it is the same or not (if its not the same then it is new)
+        if not cl_df.iloc[:self.start].equals(curr_cl_df.iloc[:self.start]):
+            self.start = 0
+
+    def fetch_data(self, ip, current_df):
 
         # extract data
         print('loading robot files...')
@@ -127,6 +137,10 @@ class CPFunctions(VisualizationFunctions):
 
         # save files
         print('processing data...')
+        try:
+            self.check_dfs(current_df)
+        except KeyError:
+            pass
         self.predict_camera_data()
         print('creating maps...')
         self.get_map()
