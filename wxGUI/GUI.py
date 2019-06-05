@@ -322,14 +322,17 @@ class CPPanel(wx.Panel):
             error_msg.Destroy()
 
     # from CPFunctions
-    def resize_for_gui(self, open_path, save_path, size=480):
+    def resize_for_gui(self, open_path, save_path):
 
         # read img
         img = Image.open(open_path).convert("RGBA")
 
-        # resize img using ratio
-        size_ratio = size / img.size[1]
-        img = img.resize((int(img.size[0] * size_ratio), int(img.size[1] * size_ratio)), PIL.Image.ANTIALIAS)
+        # # resize img using ratio
+        # size_ratio = size / img.size[1]
+        # img = img.resize((int(img.size[0] * size_ratio), int(img.size[1] * size_ratio)), PIL.Image.ANTIALIAS)
+        #
+        # resize img into a fixed dimension
+        img = img.resize((640, 480), PIL.Image.ANTIALIAS)
 
         # save img
         img.save(save_path)
@@ -352,18 +355,25 @@ class CPPanel(wx.Panel):
         self.ip = self.sgui.panel.ip_box.GetLineText(0)
         print(self.ip)
 
-        # having this import statement above destroys the GUI
-
         try:
 
             # extract data
-            self.cpf.fetch_data(str(self.ip))
+            self.cpf.fetch_data(str(self.ip), self.cl_df)
+
+            # create placeholder
+            self.placeholder_asset('temp/placeholder.png')
 
             # re-display imgs
             self.display_img('temp/placeholder.png')
 
             # update camera dataframe
             self.cl_df = pd.read_csv('temp/predictions.csv')
+
+            # show success message
+            success_msg = wx.MessageDialog(None, message='Files have been updated.',
+                                         caption='Success')
+            success_msg.ShowModal()
+            success_msg.Destroy()
 
         except FileNotFoundError:
 
