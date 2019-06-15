@@ -4,8 +4,8 @@ Date: May 18th, 2019
 '''
 import wx
 import pandas as pd
-from PIL import Image
 import PIL
+from PIL import Image, ImageOps
 from wxGUI.SettingsGUI import SettingsGUI
 from wxGUI.MappingGUI import MappingGUI
 import os
@@ -327,14 +327,23 @@ class CPPanel(wx.Panel):
         # read img
         img = Image.open(open_path).convert("RGBA")
 
-        # # resize img using ratio
-        # size_ratio = size / img.size[1]
-        # img = img.resize((int(img.size[0] * size_ratio), int(img.size[1] * size_ratio)), PIL.Image.ANTIALIAS)
-        #
-        # resize img into a fixed dimension
+        # determine the greater dimension and create ratio (height or width?)
+        img_width_height = [img.size[0], img.size[1]]
+        gui_width_height = [640, 480]
+        max_dimension = img_width_height.index(max(img_width_height))
+        size_ratio = gui_width_height[max_dimension] / img_width_height[max_dimension]
+
+        # resize img using ratio
+        img = img.resize((int(img.size[0] * size_ratio), int(img.size[1] * size_ratio)),
+                         PIL.Image.ANTIALIAS)
+
+        # add border and do resize corrections to make sure image is exactly 6480x480
+        img = ImageOps.expand(img,
+                              border=(int((640 - img.size[0]) / 2), int((480 - img.size[1]) / 2)),
+                              fill='black')
         img = img.resize((640, 480), PIL.Image.ANTIALIAS)
 
-        # save img
+        # save image
         img.save(save_path)
 
     # re-display whatever is on the screen
