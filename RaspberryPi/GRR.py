@@ -24,12 +24,10 @@ class GRR(BotFunctions, BotLogger):
         self.cl.append(str(len(self.cl)) + ',' + 'resized' + str(len(self.cl)) + '.png,' + str(self.x) + ',' +
                        str(self.y) + ',' + str(seconds) + ',' + str(self.curr_angle))
 
-
     # simplify export log method
     def export_camera_log(self, save_loc='temp/camera_log.csv'):
 
         with open(save_loc, 'w') as f:
-
             # write csv headings
             f.write(',img_name,x,y,seconds,angle\n')
 
@@ -42,7 +40,6 @@ class GRR(BotFunctions, BotLogger):
     def export_debug_log(self, save_loc='temp/debug.csv'):
 
         with open(save_loc, 'w') as f:
-
             # write csv headings
             f.write(',displacement,angle,seconds\n')
 
@@ -50,12 +47,12 @@ class GRR(BotFunctions, BotLogger):
             for item in self.dl:
                 f.write(item + '\n')
             f.close()
-            
+
     def clear_files(self, path='temp/'):
-        
+
         # unlink files in folder
         for file in os.listdir(path):
-            file_path = os.path.join(path, file) # get file path
+            file_path = os.path.join(path, file)  # get file path
 
             # remove file
             if os.path.isfile(file_path):
@@ -92,13 +89,12 @@ class GRR(BotFunctions, BotLogger):
 
         # check if it should take pictures
         if time.time() >= self.camera_time + camera_seconds and \
-           GPIO.input(self.DL) == 1 and GPIO.input(self.DL) == 1:
-            
+                GPIO.input(self.DL) == 1 and GPIO.input(self.DL) == 1:
             self.stop()
 
             # take a picture
             self.take_picture(time.time() - self.init_time)
-            
+
             # zip all data
             self.export_data_zip()
 
@@ -108,7 +104,6 @@ class GRR(BotFunctions, BotLogger):
 
         # check if it should add to displacement
         if time.time() >= self.displacement_time + displacement_seconds:
-
             # add to data for exporting
             self.store_data()
 
@@ -142,7 +137,7 @@ class GRR(BotFunctions, BotLogger):
 
                 # check left sensors
                 if GPIO.input(self.DL) == 0:
-                    
+
                     # turn right until it detects a block
                     while GPIO.input(self.DL) == 0:
                         self.block_detected()
@@ -150,10 +145,10 @@ class GRR(BotFunctions, BotLogger):
                         self.log_items(camera_seconds, displacement_seconds)
                     self.stop()
                     self.velocity_time = time.time()
-                
+
                 # check right sensors
-                if GPIO.input(self.DR) == 0:
-                    
+                elif GPIO.input(self.DR) == 0:
+
                     # turn left until it detects a block
                     while GPIO.input(self.DR) == 0:
                         self.block_detected()
@@ -162,19 +157,23 @@ class GRR(BotFunctions, BotLogger):
                     self.stop()
                     self.velocity_time = time.time()
 
+                # check if someone pressed a button
+                elif GPIO.input(self.CTR) == 0:
+                    self.terminate()
+                    return
+
                 # move forward; calculate distance
                 while GPIO.input(self.DR) and GPIO.input(self.DL):
-
                     # get distance/angle using ultrasonic?
                     self.curr_angle = self.get_angle()
-                    self.total_distance += (self.velocity * (time.time() - self.velocity_time))/10  # vt = d
-                    
+                    self.total_distance += (self.velocity * (time.time() - self.velocity_time)) / 10  # vt = d
+
                     # preform movement
                     self.forward()
 
                     # log forward movement
                     self.forward_log(self.total_distance, self.curr_angle)
-                    
+
                     # get temp time
                     self.velocity_time = time.time()
 
@@ -185,16 +184,22 @@ class GRR(BotFunctions, BotLogger):
 
         # stops when Ctrl+C
         except KeyboardInterrupt:
-            
-            # zip all data
-            self.export_data_zip()
-            
-            # stop map
-            GPIO.cleanup()
-            
-            # remove files
-            self.camera.stop_preview()
-            self.clear_files()
+            self.terminate()
+
+    def terminate(self):
+
+        # stop robot
+        self.stop()
+
+        # zip all data
+        self.export_data_zip()
+
+        # remove robot attributes
+        GPIO.cleanup()
+
+        # remove files
+        self.camera.stop_preview()
+        self.clear_files()
 
     def rotate(self, degrees):
 
@@ -215,7 +220,7 @@ class GRR(BotFunctions, BotLogger):
             self.forward()
 
     # create bot, initializing values.
-    def __init__(self, velocity=36, cycle=30, frequency=300, rot_cycle=100): # velocity is 20cm/s
+    def __init__(self, velocity=36, cycle=30, frequency=300, rot_cycle=100):  # velocity is 20cm/s
 
         # inherit functions
         BotFunctions.__init__(self, cycle=cycle, frequency=frequency)
@@ -241,7 +246,8 @@ class GRR(BotFunctions, BotLogger):
         if not os.path.exists('temp'):
             os.makedirs('temp')
 
+
 if __name__ == '__main__':
     grr = GRR()
-    #print(grr.velocity_run())
+    # print(grr.velocity_run())
     grr.bot_run(camera_seconds=5)

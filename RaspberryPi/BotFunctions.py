@@ -1,233 +1,253 @@
 '''
-
-@jangarong
-
-Initial code from waveshare (AlphaBot2.py)
-
-Find Heading by using HMC5883L interface with Raspberry Pi using Python
-http://www.electronicwings.com
-
-Using the Camera manual:
-https://www.waveshare.com/w/upload/6/61/RPi-Camera-User-Manual.pdf
-
-raspistill:
-https://www.raspberrypi.org/documentation/usage/camera/raspicam/raspistill.md
-
+GRR script; using object-oriented programming
+Author: Jan Garong
 '''
+
+from BotLogger import BotLogger
+from BotFunctions import BotFunctions
+from multiprocessing import Process
 import RPi.GPIO as GPIO
-from picamera import PiCamera
-import time
-import smbus        #import SMBus module of I2C
 import math
-#import PIL
-from PIL import Image
+import shutil
+import time
 import os
 
-class BotFunctions:
-    
-    # take picture using camera via video port
-    def take_img(self, file_loc):
-        self.camera.capture(file_loc, use_video_port=True)
-        #self.camera.close()
 
-    # if the user wants to change the speed.
-    def stop_set_speed(self, cycle, frequency):
+class GRR(BotFunctions, BotLogger):
 
-        self.PA = cycle
-        self.PB = cycle
-        self.PWMA = GPIO.PWM(self.ENA, frequency) # left and right motor
-        self.PWMB = GPIO.PWM(self.ENB, frequency)
-        self.PWMA.start(self.PA)
-        self.PWMB.start(self.PB)
+    def take_picture(self, seconds):
+
+        # take a picture
+        self.take_img('temp/resized' + str(len(self.cl)) + '.png')
+
+        # write robot's location, time and image location to csv sheet
+        self.cl.append(str(len(self.cl)) + ',' + 'resized' + str(len(self.cl)) + '.png,' + str(self.x) + ',' +
+                       str(self.y) + ',' + str(seconds) + ',' + str(self.curr_angle))
+
+    # simplify export log method
+    def export_camera_log(self, save_loc='temp/camera_log.csv'):
+
+        with open(save_loc, 'w') as f:
+            # write csv headings
+            f.write(',img_name,x,y,seconds,angle\n')
+
+            # write csv contents
+            for item in self.cl:
+                f.write(item + '\n')
+            f.close()
+
+    # simplify export log method into one function (merge debug and camera log functions)
+    def export_debug_log(self, save_loc='temp/debug.csv'):
+
+        with open(save_loc, 'w') as f:
+            # write csv headings
+            f.write(',displacement,angle,seconds\n')
+
+            # write csv contents
+            for item in self.dl:
+                f.write(item + '\n')
+            f.close()
+
+    def clear_files(self, path='temp/'):
+
+        # unlink files in folder
+        for file in os.listdir(path):
+            file_path = os.path.join(path, file)  # get file path
+
+            # remove file
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+
+            # remove directory
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+
+    def export_data_zip(self, path='temp/'):
+
+        # get map
+        self.print_map(path + 'map.txt')
+
+        # get camera log
+        self.export_camera_log(path + 'camera_log.csv')
+
+        # get debug log
+        self.export_debug_log(path + 'debug_log.csv')
+
+        # zip all contents in the file
+        shutil.make_archive('data', 'zip', path)
+
+    def store_data(self):
+
+        # get displacement using pythagorem theorem
+        displacement = math.sqrt(self.x ** 2 + self.y ** 2)
+
+        # add to data
+        self.dl.append(str(len(self.dl)) + ',' + str(displacement) + ','
+                       + str(self.curr_angle) + ',' + str(time.time() - self.init_time))
+
+    def log_items(self, camera_seconds, displacement_seconds):
+
+        # check if it should take pictures
+        if time.time() >= self.camera_time + camera_seconds and \
+                GPIO.input(self.DL) == 1 and GPIO.input(self.DL) == 1:
+            self.stop()
+
+            # take a picture
+            self.take_picture(time.time() - self.init_time)
+
+            # zip all data
+            self.export_data_zip()
+
+            # reset timers
+            self.camera_time = time.time()
+            self.velocity_time = time.time()
+
+        # check if it should add to displacement
+        if time.time() >= self.displacement_time + displacement_seconds:
+            # add to data for exporting
+            self.store_data()
+
+            # reset timers
+            self.displacement_time = time.time()
+            self.velocity_time = time.time()
+
+    def velocity_run(self):
+
+        # get starting distance
+        init_dist = self.dist()
+
+        # move forward for 3 seconds
+        self.forward()
+        time.sleep(3)
+
+        # get difference of distance between two points
+        return abs(self.dist() - init_dist)
+
+    def bot_run(self, camera_seconds=30, displacement_seconds=1):
+
+        # start timer
+        self.init_time = time.time()
+        self.camera_time = time.time()
+        self.displacement_time = time.time()
+        self.store_data()
+
+        try:
+
+            while True:
+
+                # check left sensors
+                if GPIO.input(self.DL) == 0:
+
+                    # turn right until it detects a block
+                    while GPIO.input(self.DL) == 0:
+                        self.block_detected()
+                        self.left()
+                        self.log_items(camera_seconds, displacement_seconds)
+                    self.stop()
+                    self.velocity_time = time.time()
+
+                # check right sensors
+                elif GPIO.input(self.DR) == 0:
+
+                    # turn left until it detects a block
+                    while GPIO.input(self.DR) == 0:
+                        self.block_detected()
+                        self.right()
+                        self.log_items(camera_seconds, displacement_seconds)
+                    self.stop()
+                    self.velocity_time = time.time()
+
+                # check if someone pressed a button
+                elif GPIO.input(self.CTR) == 0:
+                    self.terminate()
+                    return
+
+                # move forward; calculate distance
+                while GPIO.input(self.DR) and GPIO.input(self.DL):
+                    # get distance/angle using ultrasonic?
+                    self.curr_angle = self.get_angle()
+                    self.total_distance += (self.velocity * (time.time() - self.velocity_time)) / 10  # vt = d
+
+                    # preform movement
+                    self.forward()
+
+                    # log forward movement
+                    self.forward_log(self.total_distance, self.curr_angle)
+
+                    # get temp time
+                    self.velocity_time = time.time()
+
+                    self.log_items(camera_seconds, displacement_seconds)
+
+                # stop robot to prevent inaccuracies
+                self.stop()
+
+        # stops when Ctrl+C
+        except KeyboardInterrupt:
+            self.terminate()
+
+    def terminate(self):
+
+        # stop robot
         self.stop()
 
-    def __init__(self, ain1=12, ain2=13, ena=6,
-                 bin1=20, bin2=21, enb=26, cycle=20, dr=16, dl=19,
-                 frequency=200, rot_cycle=50):
+        # zip all data
+        self.export_data_zip()
 
-        self.camera = PiCamera()
-        self.camera.resolution = (512, 512)
-        
-        self.rot_cycle = rot_cycle
-        # set socket ids
-        # movement
-        self.AIN1 = ain1
-        self.AIN2 = ain2
-        self.BIN1 = bin1
-        self.BIN2 = bin2
-        self.ENA = ena # left motor
-        self.ENB = enb # right motor
+        # remove robot attributes
+        GPIO.cleanup()
 
-        # infrared sensors
-        self.DR = dr
-        self.DL = dl
+        # remove files
+        self.camera.stop_preview()
+        self.clear_files()
 
-        # no. of cycles
-        self.PA = cycle
-        self.PB = cycle
+    def rotate(self, degrees):
 
-        # use hardware with the code
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
+        init_angle = self.get_angle()
 
-        # motors (etc.)
-        GPIO.setup(self.AIN1, GPIO.OUT)
-        GPIO.setup(self.AIN2, GPIO.OUT)
-        GPIO.setup(self.BIN1, GPIO.OUT)
-        GPIO.setup(self.BIN2, GPIO.OUT)
-        GPIO.setup(self.ENA, GPIO.OUT)
-        GPIO.setup(self.ENB, GPIO.OUT)
+        # rotate clockwise
+        while degrees >= self.get_angle():
+            self.right()
 
-        # sensors
-        GPIO.setup(self.DR, GPIO.IN, GPIO.PUD_UP)
-        GPIO.setup(self.DL, GPIO.IN, GPIO.PUD_UP)
-        self.stop_set_speed(cycle, frequency)
+    def unit_forward(self, seconds):
 
-        # compass code
+        # start timer
+        init_time = time.time()
 
-        # some MPU6050 Registers and their Address
-        self.Register_A = 0  # Address of Configuration register A
-        self.Register_B = 0x01  # Address of configuration register B
-        self.Register_mode = 0x02  # Address of mode register
+        # move forward until time is up or until it hits an object
+        while GPIO.input(self.DR) and GPIO.input(self.DL) and \
+                init_time + seconds > time.time():
+            self.forward()
 
-        self.X_axis_H = 0x03  # Address of X-axis MSB data register
-        self.Z_axis_H = 0x05  # Address of Z-axis MSB data register
-        self.Y_axis_H = 0x07  # Address of Y-axis MSB data register
-        self.declination = -0.00669  # define declination angle of location where measurement going to be done
+    # create bot, initializing values.
+    def __init__(self, velocity=36, cycle=30, frequency=300, rot_cycle=100):  # velocity is 20cm/s
 
-        self.bus = smbus.SMBus(1)  # or bus = smbus.SMBus(0) for older version boards
-        self.Device_Address = 0x1e  # HMC5883L magnetometer device address
+        # inherit functions
+        BotFunctions.__init__(self, cycle=cycle, frequency=frequency)
+        BotLogger.__init__(self)
 
-        self.Magnetometer_Init()  # initialize HMC5883L magnetometer
-        
-        # ultrasonic ranging
-        self.TRIG = 22
-        self.ECHO = 27
+        # set distances
+        self.total_distance = 0
+        self.curr_angle = 0
+        self.velocity = velocity
 
-        GPIO.setup(self.TRIG,GPIO.OUT,initial=GPIO.LOW)
-        GPIO.setup(self.ECHO,GPIO.IN)
-        
-    def dist(self):
-        GPIO.output(self.TRIG,GPIO.HIGH)
-        time.sleep(0.000015)
-        GPIO.output(self.TRIG,GPIO.LOW)
-        while not GPIO.input(self.ECHO):
-            pass
-        t1 = time.time()
-        while GPIO.input(self.ECHO):
-            pass
-        t2 = time.time()
-        return (t2-t1)*34000/2 # in cm
+        # set logs
+        self.dl = []
+        self.cl = []
 
-    def get_angle(self):
+        # call timers
+        self.init_time = time.time()
+        self.temp_time = time.time()
+        self.camera_time = time.time()
+        self.displacement_time = time.time()
+        self.velocity_time = time.time()
 
-        # Read Accelerometer raw value
-        x = self.read_raw_data(self.X_axis_H)
-        z = self.read_raw_data(self.Z_axis_H)
-        y = self.read_raw_data(self.Y_axis_H)
-
-        heading = math.atan2(y, x) + self.declination
-
-        # Due to declination check for >360 degree
-        if (heading > 2 * math.pi):
-            heading = heading - 2 * math.pi
-
-        # check for sign
-        if (heading < 0):
-            heading = heading + 2 * math.pi
-
-        # convert into angle
-        heading_angle = int(heading * 180 / math.pi)
-
-        return heading_angle
-
-    def Magnetometer_Init(self):
-        # write to Configuration Register A
-        self.bus.write_byte_data(self.Device_Address, self.Register_A, 0x70)
-
-        # Write to Configuration Register B for gain
-        self.bus.write_byte_data(self.Device_Address, self.Register_B, 0xa0)
-
-        # Write to mode Register for selecting mode
-        self.bus.write_byte_data(self.Device_Address, self.Register_mode, 0)
-
-    def read_raw_data(self, addr):
-
-        # Read raw 16-bit value
-        high = self.bus.read_byte_data(self.Device_Address, addr)
-        low = self.bus.read_byte_data(self.Device_Address, addr + 1)
-
-        # concatenate higher and lower value
-        value = ((high << 8) | low)
-
-        # to get signed value from module
-        if (value > 32768):
-            value = value - 65536
-        return value
-
-    def forward(self):
-        self.PWMA.ChangeDutyCycle(self.PA)
-        self.PWMB.ChangeDutyCycle(self.PB)
-        GPIO.output(self.AIN1, GPIO.LOW)
-        GPIO.output(self.AIN2, GPIO.HIGH)
-        GPIO.output(self.BIN1, GPIO.LOW)
-        GPIO.output(self.BIN2, GPIO.HIGH)
+        # create temporary directory
+        if not os.path.exists('temp'):
+            os.makedirs('temp')
 
 
-    def stop(self):
-        self.PWMA.ChangeDutyCycle(0)
-        self.PWMB.ChangeDutyCycle(0)
-        GPIO.output(self.AIN1, GPIO.LOW)
-        GPIO.output(self.AIN2, GPIO.LOW)
-        GPIO.output(self.BIN1, GPIO.LOW)
-        GPIO.output(self.BIN2, GPIO.LOW)
-
-    def backward(self):
-        self.PWMA.ChangeDutyCycle(self.PA)
-        self.PWMB.ChangeDutyCycle(self.PB)
-        GPIO.output(self.AIN1, GPIO.HIGH)
-        GPIO.output(self.AIN2, GPIO.LOW)
-        GPIO.output(self.BIN1, GPIO.HIGH)
-        GPIO.output(self.BIN2, GPIO.LOW)
-
-    def left(self):
-        self.PWMA.ChangeDutyCycle(self.rot_cycle)
-        self.PWMB.ChangeDutyCycle(self.rot_cycle)
-        GPIO.output(self.AIN1, GPIO.HIGH)
-        GPIO.output(self.AIN2, GPIO.LOW)
-        GPIO.output(self.BIN1, GPIO.LOW)
-        GPIO.output(self.BIN2, GPIO.HIGH)
-
-    def right(self):
-        self.PWMA.ChangeDutyCycle(self.rot_cycle)
-        self.PWMB.ChangeDutyCycle(self.rot_cycle)
-        GPIO.output(self.AIN1, GPIO.LOW)
-        GPIO.output(self.AIN2, GPIO.HIGH)
-        GPIO.output(self.BIN1, GPIO.HIGH)
-        GPIO.output(self.BIN2, GPIO.LOW)
-
-    def setPWMA(self, value):
-        self.PA = value
-        self.PWMA.ChangeDutyCycle(self.PA)
-
-    def setPWMB(self, value):
-        self.PB = value
-        self.PWMB.ChangeDutyCycle(self.PB)
-
-    def setMotor(self, left, right):
-        if ((right >= 0) and (right <= 100)):
-            GPIO.output(self.AIN1, GPIO.HIGH)
-            GPIO.output(self.AIN2, GPIO.LOW)
-            self.PWMA.ChangeDutyCycle(right)
-        elif ((right < 0) and (right >= -100)):
-            GPIO.output(self.AIN1, GPIO.LOW)
-            GPIO.output(self.AIN2, GPIO.HIGH)
-            self.PWMA.ChangeDutyCycle(0 - right)
-        if ((left >= 0) and (left <= 100)):
-            GPIO.output(self.BIN1, GPIO.HIGH)
-            GPIO.output(self.BIN2, GPIO.LOW)
-            self.PWMB.ChangeDutyCycle(left)
-        elif ((left < 0) and (left >= -100)):
-            GPIO.output(self.BIN1, GPIO.LOW)
-            GPIO.output(self.BIN2, GPIO.HIGH)
-            self.PWMB.ChangeDutyCycle(0 - left)
+if __name__ == '__main__':
+    grr = GRR()
+    # print(grr.velocity_run())
+    grr.bot_run(camera_seconds=5)
