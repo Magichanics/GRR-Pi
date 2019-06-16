@@ -157,13 +157,14 @@ class GRR(BotFunctions, BotLogger):
                     self.stop()
                     self.velocity_time = time.time()
 
-                # check if someone pressed a button
-                elif GPIO.input(self.CTR) == 0:
-                    self.terminate()
-                    return
-
                 # move forward; calculate distance
                 while GPIO.input(self.DR) and GPIO.input(self.DL):
+
+                    # check if someone pressed a button
+                    if GPIO.input(self.CTR) == 0:
+                        self.terminate()
+                        return
+
                     # get distance/angle using ultrasonic?
                     self.curr_angle = self.get_angle()
                     self.total_distance += (self.velocity * (time.time() - self.velocity_time)) / 10  # vt = d
