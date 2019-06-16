@@ -42,4 +42,5 @@ The Great Roaming Robot autonomously creates maps, storing information that the 
 * [AlphaBot2.py](https://www.waveshare.com/) example code by waveshare.
 * [Shortest Path Algorithm](https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2) example code by Nicholas Swift
 
+## Preview
 ![alt text](assets/Photo_2019-06-15.jpg)
