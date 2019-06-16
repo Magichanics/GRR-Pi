@@ -11,7 +11,7 @@ The Great Roaming Robot autonomously creates maps, storing information that the 
 1. Run the control panel, and make sure your raspberry pi and laptop is connected to the same network.
 2. Open terminal, and type in ``ssh pi@<raspberry pi's IP address>``.
 3. Type in ``sudo python3 RaspberryPi/GRR.py`` and the robot should start moving. A few seconds later, the control panel should be able to pick up data coming from the robot.
-4. When done, press ``Ctrl+C`` while selecting terminal to stop the robot.
+4. When done, press ``Ctrl+C`` while selecting terminal to stop the robot, or you could press the center button on the robot.
 
 ## Materials Used
 * AlphaBot2-Pi
