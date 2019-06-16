@@ -1,5 +1,6 @@
 # G.R.R. - Great Roaming Robot
-Robot that autonomously creates maps, storing information that the robot recieves through its camera input. It produces spreadsheet files (csv) for the user to analyze tracking the robot's movement within the map, as well as images taken by the robot. Some applications that this robot and GUI could do is determine population size in an enclosed region, creating labelled maps for the user, or viewing and mapping locations where the user could not access.
+![alt text](assets/Photo_2019-06-15.jpg)
+The Great Roaming Robot autonomously creates maps, storing information that the robot recieves through its camera input. It produces spreadsheet files (csv) for the user to analyze tracking the robot's movement within the map, as well as images taken by the robot. Some applications that this robot and GUI could do is determine population size in an enclosed region, creating labelled maps for the user, or viewing and mapping locations where the user could not access.
 
 ## Instructions
 1. Install the following dependencies listed below.
