@@ -1,5 +1,4 @@
 # G.R.R. - Great Roaming Robot
-![alt text](assets/Photo_2019-06-15.jpg)
 The Great Roaming Robot autonomously creates maps, storing information that the robot recieves through its camera input. It produces spreadsheet files (csv) for the user to analyze tracking the robot's movement within the map, as well as images taken by the robot. Some applications that this robot and GUI could do is determine population size in an enclosed region, creating labelled maps for the user, or viewing and mapping locations where the user could not access.
 
 ## Instructions
@@ -42,3 +41,5 @@ The Great Roaming Robot autonomously creates maps, storing information that the 
 * [Find Heading by using HMC5883L interface with Raspberry Pi using Python](http://www.electronicwings.com) example code by electronicwings.
 * [AlphaBot2.py](https://www.waveshare.com/) example code by waveshare.
 * [Shortest Path Algorithm](https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2) example code by Nicholas Swift
+
+![alt text](assets/Photo_2019-06-15.jpg)
